@@ -1,7 +1,6 @@
 /// <reference path="../core/configuration.ts" />
 
 module BP3D.Core {
-
   /** Dimensioning in Inch. */
   export const dimInch: string = "inch";
 
@@ -21,9 +20,10 @@ module BP3D.Core {
      * @returns String representation.
      */
     public static cmToMeasure(cm: number): string {
+      console.log(cm);
       switch (Core.Configuration.getStringValue(Core.configDimUnit)) {
         case dimInch:
-          var realFeet = ((cm * 0.393700) / 12);
+          var realFeet = (cm * 0.3937) / 12;
           var feet = Math.floor(realFeet);
           var inches = Math.round((realFeet - feet) * 12);
           return feet + "'" + inches + '"';

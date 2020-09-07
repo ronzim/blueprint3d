@@ -1,10 +1,8 @@
-
 /*
  * Camera Buttons
  */
 
-var CameraButtons = function(blueprint3d) {
-
+var CameraButtons = function (blueprint3d) {
   var orbitControls = blueprint3d.three.controls;
   var three = blueprint3d.three;
 
@@ -14,29 +12,29 @@ var CameraButtons = function(blueprint3d) {
     DOWN: 2,
     LEFT: 3,
     RIGHT: 4
-  }
+  };
 
   function init() {
     // Camera controls
     $("#zoom-in").click(zoomIn);
-    $("#zoom-out").click(zoomOut);  
+    $("#zoom-out").click(zoomOut);
     $("#zoom-in").dblclick(preventDefault);
     $("#zoom-out").dblclick(preventDefault);
 
-    $("#reset-view").click(three.centerCamera)
+    $("#reset-view").click(three.centerCamera);
 
-    $("#move-left").click(function(){
-      pan(directions.LEFT)
-    })
-    $("#move-right").click(function(){
-      pan(directions.RIGHT)
-    })
-    $("#move-up").click(function(){
-      pan(directions.UP)
-    })
-    $("#move-down").click(function(){
-      pan(directions.DOWN)
-    })
+    $("#move-left").click(function () {
+      pan(directions.LEFT);
+    });
+    $("#move-right").click(function () {
+      pan(directions.RIGHT);
+    });
+    $("#move-up").click(function () {
+      pan(directions.UP);
+    });
+    $("#move-down").click(function () {
+      pan(directions.DOWN);
+    });
 
     $("#move-left").dblclick(preventDefault);
     $("#move-right").dblclick(preventDefault);
@@ -79,21 +77,20 @@ var CameraButtons = function(blueprint3d) {
   }
 
   init();
-}
+};
 
 /*
  * Context menu for selected item
- */ 
+ */
 
-var ContextMenu = function(blueprint3d) {
-
+var ContextMenu = function (blueprint3d) {
   var scope = this;
   var selectedItem;
   var three = blueprint3d.three;
 
   function init() {
-    $("#context-menu-delete").click(function(event) {
-        selectedItem.remove();
+    $("#context-menu-delete").click(function (event) {
+      selectedItem.remove();
     });
 
     three.itemSelectedCallbacks.add(itemSelected);
@@ -101,9 +98,9 @@ var ContextMenu = function(blueprint3d) {
 
     initResize();
 
-    $("#fixed").click(function() {
-        var checked = $(this).prop('checked');
-        selectedItem.setFixed(checked);
+    $("#fixed").click(function () {
+      var checked = $(this).prop("checked");
+      selectedItem.setFixed(checked);
     });
   }
 
@@ -120,20 +117,27 @@ var ContextMenu = function(blueprint3d) {
 
     $("#context-menu-name").text(item.metadata.itemName);
 
-    $("#item-width").val(cmToIn(selectedItem.getWidth()).toFixed(0));
-    $("#item-height").val(cmToIn(selectedItem.getHeight()).toFixed(0));
-    $("#item-depth").val(cmToIn(selectedItem.getDepth()).toFixed(0));
+    // $("#item-width").val(cmToIn(selectedItem.getWidth()).toFixed(0));
+    // $("#item-height").val(cmToIn(selectedItem.getHeight()).toFixed(0));
+    // $("#item-depth").val(cmToIn(selectedItem.getDepth()).toFixed(0));
+
+    $("#item-width").val(selectedItem.getWidth().toFixed(2));
+    $("#item-height").val(selectedItem.getHeight().toFixed(2));
+    $("#item-depth").val(selectedItem.getDepth().toFixed(2));
 
     $("#context-menu").show();
 
-    $("#fixed").prop('checked', item.fixed);
+    $("#fixed").prop("checked", item.fixed);
   }
 
   function resize() {
     selectedItem.resize(
-      inToCm($("#item-height").val()),
-      inToCm($("#item-width").val()),
-      inToCm($("#item-depth").val())
+      // inToCm($("#item-height").val()),
+      // inToCm($("#item-width").val()),
+      // inToCm($("#item-depth").val())
+      $("#item-height").val(),
+      $("#item-width").val(),
+      $("#item-depth").val()
     );
   }
 
@@ -149,22 +153,21 @@ var ContextMenu = function(blueprint3d) {
   }
 
   init();
-}
+};
 
 /*
  * Loading modal for items
  */
 
-var ModalEffects = function(blueprint3d) {
-
+var ModalEffects = function (blueprint3d) {
   var scope = this;
   var blueprint3d = blueprint3d;
   var itemsLoading = 0;
 
-  this.setActiveItem = function(active) {
+  this.setActiveItem = function (active) {
     itemSelected = active;
     update();
-  }
+  };
 
   function update() {
     if (itemsLoading > 0) {
@@ -175,27 +178,27 @@ var ModalEffects = function(blueprint3d) {
   }
 
   function init() {
-    blueprint3d.model.scene.itemLoadingCallbacks.add(function() {
+    blueprint3d.model.scene.itemLoadingCallbacks.add(function () {
       itemsLoading += 1;
       update();
     });
 
-     blueprint3d.model.scene.itemLoadedCallbacks.add(function() {
+    blueprint3d.model.scene.itemLoadedCallbacks.add(function () {
       itemsLoading -= 1;
       update();
-    });   
+    });
 
     update();
   }
 
   init();
-}
+};
 
 /*
  * Side menu
  */
 
-var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
+var SideMenu = function (blueprint3d, floorplanControls, modalEffects) {
   var blueprint3d = blueprint3d;
   var floorplanControls = floorplanControls;
   var modalEffects = modalEffects;
@@ -203,28 +206,28 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
   var ACTIVE_CLASS = "active";
 
   var tabs = {
-    "FLOORPLAN" : $("#floorplan_tab"),
-    "SHOP" : $("#items_tab"),
-    "DESIGN" : $("#design_tab")
-  }
+    FLOORPLAN: $("#floorplan_tab"),
+    SHOP: $("#items_tab"),
+    DESIGN: $("#design_tab")
+  };
 
   var scope = this;
   this.stateChangeCallbacks = $.Callbacks();
 
   this.states = {
-    "DEFAULT" : {
-      "div" : $("#viewer"),
-      "tab" : tabs.DESIGN
+    DEFAULT: {
+      div: $("#viewer"),
+      tab: tabs.DESIGN
     },
-    "FLOORPLAN" : {
-      "div" : $("#floorplanner"),
-      "tab" : tabs.FLOORPLAN
+    FLOORPLAN: {
+      div: $("#floorplanner"),
+      tab: tabs.FLOORPLAN
     },
-    "SHOP" : {
-      "div" : $("#add-items"),
-      "tab" : tabs.SHOP
+    SHOP: {
+      div: $("#add-items"),
+      tab: tabs.SHOP
     }
-  }
+  };
 
   // sidebar state
   var currentState = scope.states.FLOORPLAN;
@@ -252,7 +255,7 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
   }
 
   function tabClicked(tab) {
-    return function() {
+    return function () {
       // Stop three from spinning
       blueprint3d.three.stopSpin();
 
@@ -264,11 +267,10 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
           break;
         }
       }
-    }
+    };
   }
-  
-  function setCurrentState(newState) {
 
+  function setCurrentState(newState) {
     if (currentState == newState) {
       return;
     }
@@ -276,7 +278,7 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
     // show the right tab as active
     if (currentState.tab !== newState.tab) {
       if (currentState.tab != null) {
-        currentState.tab.removeClass(ACTIVE_CLASS);          
+        currentState.tab.removeClass(ACTIVE_CLASS);
       }
       if (newState.tab != null) {
         newState.tab.addClass(ACTIVE_CLASS);
@@ -287,14 +289,14 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
     blueprint3d.three.getController().setSelectedObject(null);
 
     // show and hide the right divs
-    currentState.div.hide()
-    newState.div.show()
+    currentState.div.hide();
+    newState.div.show();
 
     // custom actions
     if (newState == scope.states.FLOORPLAN) {
       floorplanControls.updateFloorplanView();
       floorplanControls.handleWindowResize();
-    } 
+    }
 
     if (currentState == scope.states.FLOORPLAN) {
       blueprint3d.model.floorplan.update();
@@ -303,52 +305,51 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
     if (newState == scope.states.DEFAULT) {
       blueprint3d.three.updateWindowSize();
     }
- 
+
     // set new state
-    handleWindowResize();    
+    handleWindowResize();
     currentState = newState;
 
     scope.stateChangeCallbacks.fire(newState);
   }
 
   function initLeftMenu() {
-    $( window ).resize( handleWindowResize );
+    $(window).resize(handleWindowResize);
     handleWindowResize();
   }
 
   function handleWindowResize() {
     $(".sidebar").height(window.innerHeight);
     $("#add-items").height(window.innerHeight);
-
-  };
+  }
 
   // TODO: this doesn't really belong here
   function initItems() {
-    $("#add-items").find(".add-item").mousedown(function(e) {
-      var modelUrl = $(this).attr("model-url");
-      var itemType = parseInt($(this).attr("model-type"));
-      var metadata = {
-        itemName: $(this).attr("model-name"),
-        resizable: true,
-        modelUrl: modelUrl,
-        itemType: itemType
-      }
+    $("#add-items")
+      .find(".add-item")
+      .mousedown(function (e) {
+        var modelUrl = $(this).attr("model-url");
+        var itemType = parseInt($(this).attr("model-type"));
+        var metadata = {
+          itemName: $(this).attr("model-name"),
+          resizable: true,
+          modelUrl: modelUrl,
+          itemType: itemType
+        };
 
-      blueprint3d.model.scene.addItem(itemType, modelUrl, metadata);
-      setCurrentState(scope.states.DEFAULT);
-    });
+        blueprint3d.model.scene.addItem(itemType, modelUrl, metadata);
+        setCurrentState(scope.states.DEFAULT);
+      });
   }
 
   init();
-
-}
+};
 
 /*
  * Change floor and wall textures
  */
 
 var TextureSelector = function (blueprint3d, sideMenu) {
-
   var scope = this;
   var three = blueprint3d.three;
   var isAdmin = isAdmin;
@@ -356,9 +357,9 @@ var TextureSelector = function (blueprint3d, sideMenu) {
   var currentTarget = null;
 
   function initTextureSelectors() {
-    $(".texture-select-thumbnail").click(function(e) {
+    $(".texture-select-thumbnail").click(function (e) {
       var textureUrl = $(this).attr("texture-url");
-      var textureStretch = ($(this).attr("texture-stretch") == "true");
+      var textureStretch = $(this).attr("texture-stretch") == "true";
       var textureScale = parseInt($(this).attr("texture-scale"));
       currentTarget.setTexture(textureUrl, textureStretch, textureScale);
 
@@ -377,59 +378,57 @@ var TextureSelector = function (blueprint3d, sideMenu) {
 
   function wallClicked(halfEdge) {
     currentTarget = halfEdge;
-    $("#floorTexturesDiv").hide();  
-    $("#wallTextures").show();  
+    $("#floorTexturesDiv").hide();
+    $("#wallTextures").show();
   }
 
   function floorClicked(room) {
     currentTarget = room;
-    $("#wallTextures").hide();  
-    $("#floorTexturesDiv").show();  
+    $("#wallTextures").hide();
+    $("#floorTexturesDiv").show();
   }
 
   function reset() {
-    $("#wallTextures").hide();  
-    $("#floorTexturesDiv").hide();  
+    $("#wallTextures").hide();
+    $("#floorTexturesDiv").hide();
   }
 
   init();
-}
+};
 
 /*
  * Floorplanner controls
  */
 
-var ViewerFloorplanner = function(blueprint3d) {
-
-  var canvasWrapper = '#floorplanner';
+var ViewerFloorplanner = function (blueprint3d) {
+  var canvasWrapper = "#floorplanner";
 
   // buttons
-  var move = '#move';
-  var remove = '#delete';
-  var draw = '#draw';
+  var move = "#move";
+  var remove = "#delete";
+  var draw = "#draw";
 
-  var activeStlye = 'btn-primary disabled';
+  var activeStlye = "btn-primary disabled";
 
   this.floorplanner = blueprint3d.floorplanner;
 
   var scope = this;
 
   function init() {
-
-    $( window ).resize( scope.handleWindowResize );
+    $(window).resize(scope.handleWindowResize);
     scope.handleWindowResize();
 
     // mode buttons
-    scope.floorplanner.modeResetCallbacks.add(function(mode) {
+    scope.floorplanner.modeResetCallbacks.add(function (mode) {
       $(draw).removeClass(activeStlye);
       $(remove).removeClass(activeStlye);
       $(move).removeClass(activeStlye);
       if (mode == BP3D.Floorplanner.floorplannerModes.MOVE) {
-          $(move).addClass(activeStlye);
+        $(move).addClass(activeStlye);
       } else if (mode == BP3D.Floorplanner.floorplannerModes.DRAW) {
-          $(draw).addClass(activeStlye);
+        $(draw).addClass(activeStlye);
       } else if (mode == BP3D.Floorplanner.floorplannerModes.DELETE) {
-          $(remove).addClass(activeStlye);
+        $(remove).addClass(activeStlye);
       }
 
       if (mode == BP3D.Floorplanner.floorplannerModes.DRAW) {
@@ -440,57 +439,59 @@ var ViewerFloorplanner = function(blueprint3d) {
       }
     });
 
-    $(move).click(function(){
+    $(move).click(function () {
       scope.floorplanner.setMode(BP3D.Floorplanner.floorplannerModes.MOVE);
     });
 
-    $(draw).click(function(){
+    $(draw).click(function () {
       scope.floorplanner.setMode(BP3D.Floorplanner.floorplannerModes.DRAW);
     });
 
-    $(remove).click(function(){
+    $(remove).click(function () {
       scope.floorplanner.setMode(BP3D.Floorplanner.floorplannerModes.DELETE);
     });
   }
 
-  this.updateFloorplanView = function() {
+  this.updateFloorplanView = function () {
     scope.floorplanner.reset();
-  }
+  };
 
-  this.handleWindowResize = function() {
+  this.handleWindowResize = function () {
     $(canvasWrapper).height(window.innerHeight - $(canvasWrapper).offset().top);
     scope.floorplanner.resizeView();
   };
 
   init();
-}; 
+};
 
-var mainControls = function(blueprint3d) {
+var mainControls = function (blueprint3d) {
   var blueprint3d = blueprint3d;
 
   function newDesign() {
-    blueprint3d.model.loadSerialized('{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}');
+    blueprint3d.model.loadSerialized(
+      '{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}'
+    );
   }
 
   function loadDesign() {
     files = $("#loadFile").get(0).files;
-    var reader  = new FileReader();
-    reader.onload = function(event) {
-        var data = event.target.result;
-        blueprint3d.model.loadSerialized(data);
-    }
+    var reader = new FileReader();
+    reader.onload = function (event) {
+      var data = event.target.result;
+      blueprint3d.model.loadSerialized(data);
+    };
     reader.readAsText(files[0]);
   }
 
   function saveDesign() {
     var data = blueprint3d.model.exportSerialized();
-    var a = window.document.createElement('a');
-    var blob = new Blob([data], {type : 'text'});
+    var a = window.document.createElement("a");
+    var blob = new Blob([data], { type: "text" });
     a.href = window.URL.createObjectURL(blob);
-    a.download = 'design.blueprint3d';
-    document.body.appendChild(a)
+    a.download = "design.blueprint3d";
+    document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a)
+    document.body.removeChild(a);
   }
 
   function init() {
@@ -500,33 +501,34 @@ var mainControls = function(blueprint3d) {
   }
 
   init();
-}
+};
 
 /*
  * Initialize!
  */
 
-$(document).ready(function() {
-
+$(document).ready(function () {
   // main setup
   var opts = {
-    floorplannerElement: 'floorplanner-canvas',
-    threeElement: '#viewer',
-    threeCanvasElement: 'three-canvas',
+    floorplannerElement: "floorplanner-canvas",
+    threeElement: "#viewer",
+    threeCanvasElement: "three-canvas",
     textureDir: "models/textures/",
     widget: false
-  }
+  };
   var blueprint3d = new BP3D.Blueprint3d(opts);
 
   var modalEffects = new ModalEffects(blueprint3d);
   var viewerFloorplanner = new ViewerFloorplanner(blueprint3d);
   var contextMenu = new ContextMenu(blueprint3d);
   var sideMenu = new SideMenu(blueprint3d, viewerFloorplanner, modalEffects);
-  var textureSelector = new TextureSelector(blueprint3d, sideMenu);        
+  var textureSelector = new TextureSelector(blueprint3d, sideMenu);
   var cameraButtons = new CameraButtons(blueprint3d);
   mainControls(blueprint3d);
 
   // This serialization format needs work
   // Load a simple rectangle room
-  blueprint3d.model.loadSerialized('{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}');
+  blueprint3d.model.loadSerialized(
+    '{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}'
+  );
 });
