@@ -1,8 +1,6 @@
 module BP3D.Core {
-
   /** Collection of utility functions. */
   export class Utils {
-
     /** Determines the distance of a point from a line.
      * @param x Point's x coordinate.
      * @param y Point's y coordinate.
@@ -12,7 +10,14 @@ module BP3D.Core {
      * @param y2 Line-Point 2's y coordinate.
      * @returns The distance.
      */
-    public static pointDistanceFromLine(x: number, y: number, x1: number, y1: number, x2: number, y2: number): number {
+    public static pointDistanceFromLine(
+      x: number,
+      y: number,
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number
+    ): number {
       var tPoint = Utils.closestPointOnLine(x, y, x1, y1, x2, y2);
       var tDx = x - tPoint.x;
       var tDy = y - tPoint.y;
@@ -28,7 +33,14 @@ module BP3D.Core {
      * @param y2 Line-Point 2's y coordinate.
      * @returns The point.
      */
-    static closestPointOnLine(x: number, y: number, x1: number, y1: number, x2: number, y2: number): { x: number, y: number } {
+    static closestPointOnLine(
+      x: number,
+      y: number,
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number
+    ): { x: number; y: number } {
       // Inspired by: http://stackoverflow.com/a/6853926
       var tA = x - x1;
       var tB = y - y1;
@@ -44,12 +56,10 @@ module BP3D.Core {
       if (tParam < 0 || (x1 == x2 && y1 == y2)) {
         tXx = x1;
         tYy = y1;
-      }
-      else if (tParam > 1) {
+      } else if (tParam > 1) {
         tXx = x2;
         tYy = y2;
-      }
-      else {
+      } else {
         tXx = x1 + tParam * tC;
         tYy = y1 + tParam * tD;
       }
@@ -57,7 +67,7 @@ module BP3D.Core {
       return {
         x: tXx,
         y: tYy
-      }
+      };
     }
 
     /** Gets the distance of two points.
@@ -68,9 +78,7 @@ module BP3D.Core {
      * @returns The distance.
      */
     static distance(x1: number, y1: number, x2: number, y2: number): number {
-      return Math.sqrt(
-        Math.pow(x2 - x1, 2) +
-        Math.pow(y2 - y1, 2));
+      return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
     /**  Gets the angle between 0,0 -> x1,y1 and 0,0 -> x2,y2 (-pi to pi)
@@ -98,19 +106,31 @@ module BP3D.Core {
      */
     static isClockwise(points): boolean {
       // make positive
-      let tSubX = Math.min(0, Math.min.apply(null, Utils.map(points, function (p) {
-        return p.x;
-      })))
-      let tSubY = Math.min(0, Math.min.apply(null, Utils.map(points, function (p) {
-        return p.x;
-      })))
+      let tSubX = Math.min(
+        0,
+        Math.min.apply(
+          null,
+          Utils.map(points, function (p) {
+            return p.x;
+          })
+        )
+      );
+      let tSubY = Math.min(
+        0,
+        Math.min.apply(
+          null,
+          Utils.map(points, function (p) {
+            return p.x;
+          })
+        )
+      );
 
       var tNewPoints = Utils.map(points, function (p) {
         return {
           x: p.x - tSubX,
           y: p.y - tSubY
-        }
-      })
+        };
+      });
 
       // determine CW/CCW, based on:
       // http://stackoverflow.com/questions/1165647
@@ -120,13 +140,12 @@ module BP3D.Core {
         var tC2: any;
         if (tI == tNewPoints.length - 1) {
           tC2 = tNewPoints[0];
-        }
-        else {
+        } else {
           tC2 = tNewPoints[tI + 1];
         }
         tSum += (tC2.x - tC1.x) * (tC2.y + tC1.y);
       }
-      return (tSum >= 0);
+      return tSum >= 0;
     }
 
     /** Creates a Guid.
@@ -137,10 +156,22 @@ module BP3D.Core {
         return Math.floor((1 + Math.random()) * 0x10000)
           .toString(16)
           .substring(1);
-      }
+      };
 
-      return tS4() + tS4() + '-' + tS4() + '-' + tS4() + '-' +
-        tS4() + '-' + tS4() + tS4() + tS4();
+      return (
+        tS4() +
+        tS4() +
+        "-" +
+        tS4() +
+        "-" +
+        tS4() +
+        "-" +
+        tS4() +
+        "-" +
+        tS4() +
+        tS4() +
+        tS4()
+      );
     }
 
     /** both arguments are arrays of corners with x,y attributes */
@@ -151,15 +182,19 @@ module BP3D.Core {
 
         if (tI == firstCorners.length - 1) {
           tSecondCorner = firstCorners[0];
-        }
-        else {
+        } else {
           tSecondCorner = firstCorners[tI + 1];
         }
 
-        if (Utils.linePolygonIntersect(
-          tFirstCorner.x, tFirstCorner.y,
-          tSecondCorner.x, tSecondCorner.y,
-          secondCorners)) {
+        if (
+          Utils.linePolygonIntersect(
+            tFirstCorner.x,
+            tFirstCorner.y,
+            tSecondCorner.x,
+            tSecondCorner.y,
+            secondCorners
+          )
+        ) {
           return true;
         }
       }
@@ -167,20 +202,34 @@ module BP3D.Core {
     }
 
     /** Corners is an array of points with x,y attributes */
-    static linePolygonIntersect(x1: number, y1: number, x2: number, y2: number, corners): boolean {
+    static linePolygonIntersect(
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number,
+      corners
+    ): boolean {
       for (var tI = 0; tI < corners.length; tI++) {
         var tFirstCorner = corners[tI],
           tSecondCorner;
         if (tI == corners.length - 1) {
           tSecondCorner = corners[0];
-        }
-        else {
+        } else {
           tSecondCorner = corners[tI + 1];
         }
 
-        if (Utils.lineLineIntersect(x1, y1, x2, y2,
-          tFirstCorner.x, tFirstCorner.y,
-          tSecondCorner.x, tSecondCorner.y)) {
+        if (
+          Utils.lineLineIntersect(
+            x1,
+            y1,
+            x2,
+            y2,
+            tFirstCorner.x,
+            tFirstCorner.y,
+            tSecondCorner.x,
+            tSecondCorner.y
+          )
+        ) {
           return true;
         }
       }
@@ -188,7 +237,16 @@ module BP3D.Core {
     }
 
     /** */
-    static lineLineIntersect(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): boolean {
+    static lineLineIntersect(
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number,
+      x3: number,
+      y3: number,
+      x4: number,
+      y4: number
+    ): boolean {
       function tCCW(p1, p2, p3) {
         var tA = p1.x,
           tB = p1.y,
@@ -203,7 +261,10 @@ module BP3D.Core {
         tP2 = { x: x2, y: y2 },
         tP3 = { x: x3, y: y3 },
         tP4 = { x: x4, y: y4 };
-      return (tCCW(tP1, tP3, tP4) != tCCW(tP2, tP3, tP4)) && (tCCW(tP1, tP2, tP3) != tCCW(tP1, tP2, tP4));
+      return (
+        tCCW(tP1, tP3, tP4) != tCCW(tP2, tP3, tP4) &&
+        tCCW(tP1, tP2, tP3) != tCCW(tP1, tP2, tP4)
+      );
     }
 
     /**
@@ -211,9 +272,17 @@ module BP3D.Core {
       @param startX X start coord for raycast
       @param startY Y start coord for raycast
     */
-    static pointInPolygon(x: number, y: number, corners, startX?: number, startY?: number): boolean {
+    static pointInPolygon(
+      x: number,
+      y: number,
+      corners,
+      startX?: number,
+      startY?: number
+    ): boolean {
       startX = startX || 0;
       startY = startY || 0;
+
+      console.log(x, y, corners, startX, startY);
 
       //ensure that point(startX, startY) is outside the polygon consists of corners
       var tMinX = 0,
@@ -234,31 +303,50 @@ module BP3D.Core {
           tSecondCorner;
         if (tI == corners.length - 1) {
           tSecondCorner = corners[0];
-        }
-        else {
+        } else {
           tSecondCorner = corners[tI + 1];
         }
 
-        if (Utils.lineLineIntersect(startX, startY, x, y,
-          tFirstCorner.x, tFirstCorner.y,
-          tSecondCorner.x, tSecondCorner.y)) {
+        if (
+          Utils.lineLineIntersect(
+            startX,
+            startY,
+            x,
+            y,
+            tFirstCorner.x,
+            tFirstCorner.y,
+            tSecondCorner.x,
+            tSecondCorner.y
+          )
+        ) {
           tIntersects++;
         }
       }
       // odd intersections means the point is in the polygon
-      return ((tIntersects % 2) == 1);
+      var result = tIntersects % 2 == 1;
+      return !result; // FIXME if walls are cw / ccw ?
     }
 
     /** Checks if all corners of insideCorners are inside the polygon described by outsideCorners */
-    static polygonInsidePolygon(insideCorners, outsideCorners, startX: number, startY: number): boolean {
+    static polygonInsidePolygon(
+      insideCorners,
+      outsideCorners,
+      startX: number,
+      startY: number
+    ): boolean {
       startX = startX || 0;
       startY = startY || 0;
 
       for (var tI = 0; tI < insideCorners.length; tI++) {
-        if (!Utils.pointInPolygon(
-          insideCorners[tI].x, insideCorners[tI].y,
-          outsideCorners,
-          startX, startY)) {
+        if (
+          !Utils.pointInPolygon(
+            insideCorners[tI].x,
+            insideCorners[tI].y,
+            outsideCorners,
+            startX,
+            startY
+          )
+        ) {
           return false;
         }
       }
@@ -266,15 +354,25 @@ module BP3D.Core {
     }
 
     /** Checks if any corners of firstCorners is inside the polygon described by secondCorners */
-    static polygonOutsidePolygon(insideCorners, outsideCorners, startX: number, startY: number): boolean {
+    static polygonOutsidePolygon(
+      insideCorners,
+      outsideCorners,
+      startX: number,
+      startY: number
+    ): boolean {
       startX = startX || 0;
       startY = startY || 0;
 
       for (var tI = 0; tI < insideCorners.length; tI++) {
-        if (Utils.pointInPolygon(
-          insideCorners[tI].x, insideCorners[tI].y,
-          outsideCorners,
-          startX, startY)) {
+        if (
+          Utils.pointInPolygon(
+            insideCorners[tI].x,
+            insideCorners[tI].y,
+            outsideCorners,
+            startX,
+            startY
+          )
+        ) {
           return false;
         }
       }
@@ -297,7 +395,7 @@ module BP3D.Core {
 
     static map(array, func) {
       var tResult = [];
-      array.forEach((element) => {
+      array.forEach(element => {
         tResult.push(func(element));
       });
       return tResult;
@@ -306,7 +404,7 @@ module BP3D.Core {
     /** Remove elements in array if func(element) returns true */
     static removeIf(array, func) {
       var tResult = [];
-      array.forEach((element) => {
+      array.forEach(element => {
         if (!func(element)) {
           tResult.push(element);
         }
@@ -354,7 +452,7 @@ module BP3D.Core {
         }
       }
       return false;
-    }
+    };
 
     /** Subtracts the elements in subArray from array */
     static subtract(array, subArray) {
