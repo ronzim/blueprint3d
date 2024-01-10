@@ -1,5 +1,4 @@
 module.exports = function (grunt) {
-
   require("matchdep").filterAll("grunt-*").forEach(grunt.loadNpmTasks);
 
   var globalConfig = {
@@ -23,7 +22,7 @@ module.exports = function (grunt) {
   configuration.copy.threejs = {
     src: "node_modules/three/three.min.js",
     dest: globalConfig.exampleDir + "/three.min.js"
-  }
+  };
 
   configuration.typescript = {
     options: {
@@ -45,7 +44,7 @@ module.exports = function (grunt) {
       mode: "file",
       readme: "none"
     }
-  }
+  };
   configuration.typedoc[globalConfig.moduleName] = {
     options: {
       out: globalConfig.docDir + "/" + globalConfig.moduleName,
@@ -60,17 +59,17 @@ module.exports = function (grunt) {
       beautify: false,
       sourceMap: true
     }
-  }
+  };
   configuration.uglify[globalConfig.moduleName] = {
     files: {}
-  }
-  configuration.uglify[globalConfig.moduleName].files["dist/" + globalConfig.moduleName + ".min.js"] = globalConfig.outDir + "/" + globalConfig.moduleName +".js";
+  };
+  configuration.uglify[globalConfig.moduleName].files[
+    "dist/" + globalConfig.moduleName + ".min.js"
+  ] = globalConfig.outDir + "/" + globalConfig.moduleName + ".js";
 
   grunt.initConfig(configuration);
 
-  grunt.registerTask("debug", [
-    "typescript:" + globalConfig.moduleName
-  ]);
+  grunt.registerTask("debug", ["typescript:" + globalConfig.moduleName]);
 
   grunt.registerTask("example", [
     "copy:threejs",
@@ -84,8 +83,5 @@ module.exports = function (grunt) {
     "typedoc:" + globalConfig.moduleName
   ]);
 
-  grunt.registerTask("default", [
-    "debug",
-    "example"
-  ]);
+  grunt.registerTask("default", ["debug", "example"]);
 };
