@@ -1,4 +1,4 @@
-/// <reference path="../../lib/jQuery.d.ts" />
+/// <reference path="../../lib/jquery.d.ts" />
 /// <reference path="../../lib/three.d.ts" />
 /// <reference path="../core/utils.ts" />
 
@@ -15,7 +15,9 @@ module BP3D.Three {
     var basePlanes = []; // always visible
     var texture = null;
 
-    var lightMap = THREE.ImageUtils.loadTexture("rooms/textures/walllightmap.png");
+    var lightMap = THREE.ImageUtils.loadTexture(
+      "rooms/textures/walllightmap.png"
+    );
     var fillerColor = 0xdddddd;
     var sideColor = 0xcccccc;
     var baseColor = 0xdddddd;
@@ -26,7 +28,7 @@ module BP3D.Three {
       edge.redrawCallbacks.remove(redraw);
       controls.cameraMovedCallbacks.remove(updateVisibility);
       removeFromScene();
-    }
+    };
 
     function init() {
       edge.redrawCallbacks.add(redraw);
@@ -44,10 +46,10 @@ module BP3D.Three {
     }
 
     function removeFromScene() {
-      planes.forEach((plane) => {
+      planes.forEach(plane => {
         scene.remove(plane);
       });
-      basePlanes.forEach((plane) => {
+      basePlanes.forEach(plane => {
         scene.remove(plane);
       });
       planes = [];
@@ -55,10 +57,10 @@ module BP3D.Three {
     }
 
     function addToScene() {
-      planes.forEach((plane) => {
+      planes.forEach(plane => {
         scene.add(plane);
       });
-      basePlanes.forEach((plane) => {
+      basePlanes.forEach(plane => {
         scene.add(plane);
       });
       updateVisibility();
@@ -79,17 +81,18 @@ module BP3D.Three {
       var focus = new THREE.Vector3(
         (start.x + end.x) / 2.0,
         0,
-        (start.y + end.y) / 2.0);
+        (start.y + end.y) / 2.0
+      );
       var direction = position.sub(focus).normalize();
 
       // find dot
       var dot = normal.dot(direction);
 
       // update visible
-      scope.visible = (dot >= 0);
+      scope.visible = dot >= 0;
 
       // show or hide plans
-      planes.forEach((plane) => {
+      planes.forEach(plane => {
         plane.visible = scope.visible;
       });
 
@@ -97,19 +100,21 @@ module BP3D.Three {
     }
 
     function updateObjectVisibility() {
-      wall.items.forEach((item) => {
+      wall.items.forEach(item => {
         item.updateEdgeVisibility(scope.visible, front);
       });
-      wall.onItems.forEach((item) => {
+      wall.onItems.forEach(item => {
         item.updateEdgeVisibility(scope.visible, front);
       });
     }
 
     function updateTexture(callback?) {
       // callback is fired when texture loads
-      callback = callback || function () {
-        scene.needsUpdate = true;
-      }
+      callback =
+        callback ||
+        function () {
+          scene.needsUpdate = true;
+        };
       var textureData = edge.getTexture();
       var stretch = textureData.stretch;
       var url = textureData.url;
@@ -131,7 +136,7 @@ module BP3D.Three {
         // ambientColor: 0xffffff, TODO_Ekki
         //ambient: scope.wall.color,
         side: THREE.FrontSide,
-        map: texture,
+        map: texture
         // lightMap: lightMap TODO_Ekki
       });
 
@@ -141,40 +146,54 @@ module BP3D.Three {
       });
 
       // exterior plane
-      planes.push(makeWall(
-        edge.exteriorStart(),
-        edge.exteriorEnd(),
-        edge.exteriorTransform,
-        edge.invExteriorTransform,
-        fillerMaterial));
+      planes.push(
+        makeWall(
+          edge.exteriorStart(),
+          edge.exteriorEnd(),
+          edge.exteriorTransform,
+          edge.invExteriorTransform,
+          fillerMaterial
+        )
+      );
 
       // interior plane
-      planes.push(makeWall(
-        edge.interiorStart(),
-        edge.interiorEnd(),
-        edge.interiorTransform,
-        edge.invInteriorTransform,
-        wallMaterial));
+      planes.push(
+        makeWall(
+          edge.interiorStart(),
+          edge.interiorEnd(),
+          edge.interiorTransform,
+          edge.invInteriorTransform,
+          wallMaterial
+        )
+      );
 
       // bottom
       // put into basePlanes since this is always visible
-      basePlanes.push(buildFiller(
-        edge, 0,
-        THREE.BackSide, baseColor));
+      basePlanes.push(buildFiller(edge, 0, THREE.BackSide, baseColor));
 
       // top
-      planes.push(buildFiller(
-        edge, wall.height,
-        THREE.DoubleSide, fillerColor));
+      planes.push(
+        buildFiller(edge, wall.height, THREE.DoubleSide, fillerColor)
+      );
 
       // sides
-      planes.push(buildSideFillter(
-        edge.interiorStart(), edge.exteriorStart(),
-        wall.height, sideColor));
+      planes.push(
+        buildSideFillter(
+          edge.interiorStart(),
+          edge.exteriorStart(),
+          wall.height,
+          sideColor
+        )
+      );
 
-      planes.push(buildSideFillter(
-        edge.interiorEnd(), edge.exteriorEnd(),
-        wall.height, sideColor));
+      planes.push(
+        buildSideFillter(
+          edge.interiorEnd(),
+          edge.exteriorEnd(),
+          wall.height,
+          sideColor
+        )
+      );
     }
 
     // start, end have x and y attributes (i.e. corners)
@@ -188,7 +207,7 @@ module BP3D.Three {
 
       var points = [v1.clone(), v2.clone(), v3.clone(), v4.clone()];
 
-      points.forEach((p) => {
+      points.forEach(p => {
         p.applyMatrix4(transform);
       });
 
@@ -200,9 +219,9 @@ module BP3D.Three {
       ]);
 
       // add holes for each wall item
-      wall.items.forEach((item) => {
+      wall.items.forEach(item => {
         var pos = item.position.clone();
-        pos.applyMatrix4(transform)
+        pos.applyMatrix4(transform);
         var halfSize = item.halfSize;
         var min = halfSize.clone().multiplyScalar(-1);
         var max = halfSize.clone();
@@ -221,7 +240,7 @@ module BP3D.Three {
 
       var geometry = new THREE.ShapeGeometry(shape);
 
-      geometry.vertices.forEach((v) => {
+      geometry.vertices.forEach(v => {
         v.applyMatrix4(invTransform);
       });
 
@@ -231,19 +250,21 @@ module BP3D.Three {
       geometry.faceVertexUvs[0] = [];
 
       function vertexToUv(vertex) {
-        var x = Core.Utils.distance(v1.x, v1.z, vertex.x, vertex.z) / totalDistance;
+        var x =
+          Core.Utils.distance(v1.x, v1.z, vertex.x, vertex.z) / totalDistance;
         var y = vertex.y / height;
         return new THREE.Vector2(x, y);
       }
 
-      geometry.faces.forEach((face) => {
+      geometry.faces.forEach(face => {
         var vertA = geometry.vertices[face.a];
         var vertB = geometry.vertices[face.b];
         var vertC = geometry.vertices[face.c];
         geometry.faceVertexUvs[0].push([
           vertexToUv(vertA),
           vertexToUv(vertB),
-          vertexToUv(vertC)]);
+          vertexToUv(vertC)
+        ]);
       });
 
       geometry.faceVertexUvs[1] = geometry.faceVertexUvs[0];
@@ -251,9 +272,7 @@ module BP3D.Three {
       geometry.computeFaceNormals();
       geometry.computeVertexNormals();
 
-      var mesh = new THREE.Mesh(
-        geometry,
-        material);
+      var mesh = new THREE.Mesh(geometry, material);
 
       return mesh;
     }
@@ -267,7 +286,7 @@ module BP3D.Three {
       ];
 
       var geometry = new THREE.Geometry();
-      points.forEach((p) => {
+      points.forEach(p => {
         geometry.vertices.push(p);
       });
       geometry.faces.push(new THREE.Face3(0, 1, 2));
@@ -314,5 +333,5 @@ module BP3D.Three {
     }
 
     init();
-  }
+  };
 }

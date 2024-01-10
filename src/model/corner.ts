@@ -1,4 +1,4 @@
-/// <reference path="../../lib/jQuery.d.ts" />
+/// <reference path="../../lib/jquery.d.ts" />
 /// <reference path="../core/utils.ts" />
 /// <reference path="floorplan.ts" />
 /// <reference path="wall.ts" />
@@ -11,7 +11,6 @@ module BP3D.Model {
    * Corners are used to define Walls.
    */
   export class Corner {
-
     /** Array of start walls. */
     private wallStarts: Wall[] = [];
 
@@ -27,19 +26,24 @@ module BP3D.Model {
     /** Callbacks to be fired in case of action. */
     private action_callbacks = $.Callbacks();
 
-    /** Constructs a corner. 
+    /** Constructs a corner.
      * @param floorplan The associated floorplan.
      * @param x X coordinate.
      * @param y Y coordinate.
      * @param id An optional unique id. If not set, created internally.
      */
-    constructor(private floorplan: Floorplan, public x: number, public y: number, public id?: string) {
+    constructor(
+      private floorplan: Floorplan,
+      public x: number,
+      public y: number,
+      public id?: string
+    ) {
       this.id = id || Core.Utils.guid();
     }
 
     /** Add function to moved callbacks.
      * @param func The function to be added.
-    */
+     */
     public fireOnMove(func) {
       this.moved_callbacks.add(func);
     }
@@ -75,9 +79,9 @@ module BP3D.Model {
     }
 
     /**
-     * 
+     *
      */
-    public snapToAxis(tolerance: number): { x: boolean, y: boolean } {
+    public snapToAxis(tolerance: number): { x: boolean; y: boolean } {
       // try to snap this corner to an axis
       var snapped = {
         x: false,
@@ -86,7 +90,7 @@ module BP3D.Model {
 
       var scope = this;
 
-      this.adjacentCorners().forEach((corner) => {
+      this.adjacentCorners().forEach(corner => {
         if (Math.abs(corner.x - scope.x) < tolerance) {
           scope.x = corner.x;
           snapped.x = true;
@@ -108,7 +112,7 @@ module BP3D.Model {
     }
 
     private fireAction(action) {
-      this.action_callbacks.fire(action)
+      this.action_callbacks.fire(action);
     }
 
     /** Remove callback. Fires the delete callbacks. */
@@ -124,7 +128,7 @@ module BP3D.Model {
       for (var i = 0; i < this.wallEnds.length; i++) {
         this.wallEnds[i].remove();
       }
-      this.remove()
+      this.remove();
     }
 
     /** Moves corner to new position.
@@ -137,11 +141,11 @@ module BP3D.Model {
       this.mergeWithIntersected();
       this.moved_callbacks.fire(this.x, this.y);
 
-      this.wallStarts.forEach((wall) => {
+      this.wallStarts.forEach(wall => {
         wall.fireMoved();
       });
 
-      this.wallEnds.forEach((wall) => {
+      this.wallEnds.forEach(wall => {
         wall.fireMoved();
       });
     }
@@ -179,7 +183,7 @@ module BP3D.Model {
     }
 
     /**
-     * 
+     *
      */
     public distanceFrom(x: number, y: number): number {
       var distance = Core.Utils.distance(x, y, this.x, this.y);
@@ -218,14 +222,14 @@ module BP3D.Model {
      * @param wall A wall.
      */
     public attachStart(wall: Wall) {
-      this.wallStarts.push(wall)
+      this.wallStarts.push(wall);
     }
 
     /** Attaches an end wall.
      * @param wall A wall.
      */
     public attachEnd(wall: Wall) {
-      this.wallEnds.push(wall)
+      this.wallEnds.push(wall);
     }
 
     /** Get wall to corner.
@@ -263,7 +267,7 @@ module BP3D.Model {
     }
 
     /**
-     * 
+     *
      */
     private combineWithCorner(corner: Corner) {
       // update position to other corner's
@@ -287,7 +291,10 @@ module BP3D.Model {
       // check corners
       for (var i = 0; i < this.floorplan.getCorners().length; i++) {
         var corner = this.floorplan.getCorners()[i];
-        if (this.distanceFromCorner(corner) < cornerTolerance && corner != this) {
+        if (
+          this.distanceFromCorner(corner) < cornerTolerance &&
+          corner != this
+        ) {
           this.combineWithCorner(corner);
           return true;
         }
@@ -295,11 +302,19 @@ module BP3D.Model {
       // check walls
       for (var i = 0; i < this.floorplan.getWalls().length; i++) {
         var wall = this.floorplan.getWalls()[i];
-        if (this.distanceFromWall(wall) < cornerTolerance && !this.isWallConnected(wall)) {
+        if (
+          this.distanceFromWall(wall) < cornerTolerance &&
+          !this.isWallConnected(wall)
+        ) {
           // update position to be on wall
-          var intersection = Core.Utils.closestPointOnLine(this.x, this.y,
-            wall.getStart().x, wall.getStart().y,
-            wall.getEnd().x, wall.getEnd().y);
+          var intersection = Core.Utils.closestPointOnLine(
+            this.x,
+            this.y,
+            wall.getStart().x,
+            wall.getStart().y,
+            wall.getEnd().x,
+            wall.getEnd().y
+          );
           this.x = intersection.x;
           this.y = intersection.y;
           // merge this corner into wall by breaking wall into two parts
@@ -319,7 +334,7 @@ module BP3D.Model {
       var wallStartpoints = {};
       for (var i = this.wallStarts.length - 1; i >= 0; i--) {
         if (this.wallStarts[i].getEnd() === this) {
-          // remove zero length wall 
+          // remove zero length wall
           this.wallStarts[i].remove();
         } else if (this.wallStarts[i].getEnd().id in wallEndpoints) {
           // remove duplicated wall
@@ -330,7 +345,7 @@ module BP3D.Model {
       }
       for (var i = this.wallEnds.length - 1; i >= 0; i--) {
         if (this.wallEnds[i].getStart() === this) {
-          // removed zero length wall 
+          // removed zero length wall
           this.wallEnds[i].remove();
         } else if (this.wallEnds[i].getStart().id in wallStartpoints) {
           // removed duplicated wall

@@ -1,17 +1,16 @@
 /// <reference path="../../lib/three.d.ts" />
-/// <reference path="../../lib/jQuery.d.ts" />
+/// <reference path="../../lib/jquery.d.ts" />
 /// <reference path="../core/utils.ts" />
 
 module BP3D.Model {
   /**
    * Half Edges are created by Room.
-   * 
+   *
    * Once rooms have been identified, Half Edges are created for each interior wall.
-   * 
+   *
    * A wall can have two half edges if it is visible from both sides.
    */
   export class HalfEdge {
-
     /** The successor edge in CCW ??? direction. */
     public next: HalfEdge;
 
@@ -62,7 +61,7 @@ module BP3D.Model {
     }
 
     /**
-     * 
+     *
      */
     public getTexture() {
       if (this.front) {
@@ -73,14 +72,18 @@ module BP3D.Model {
     }
 
     /**
-     * 
+     *
      */
-    public setTexture(textureUrl: string, textureStretch: boolean, textureScale: number) {
+    public setTexture(
+      textureUrl: string,
+      textureStretch: boolean,
+      textureScale: number
+    ) {
       var texture = {
         url: textureUrl,
         stretch: textureStretch,
         scale: textureScale
-      }
+      };
       if (this.front) {
         this.wall.frontTexture = texture;
       } else {
@@ -89,11 +92,10 @@ module BP3D.Model {
       this.redrawCallbacks.fire();
     }
 
-    /** 
+    /**
      * this feels hacky, but need wall items
      */
     public generatePlane = function () {
-
       function transformCorner(corner) {
         return new THREE.Vector3(corner.x, 0, corner.y);
       }
@@ -113,18 +115,23 @@ module BP3D.Model {
       geometry.computeFaceNormals();
       geometry.computeBoundingBox();
 
-      this.plane = new THREE.Mesh(geometry,
-        new THREE.MeshBasicMaterial());
+      this.plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
       this.plane.visible = false;
       this.plane.edge = this; // js monkey patch
 
       this.computeTransforms(
-        this.interiorTransform, this.invInteriorTransform,
-        this.interiorStart(), this.interiorEnd());
+        this.interiorTransform,
+        this.invInteriorTransform,
+        this.interiorStart(),
+        this.interiorEnd()
+      );
       this.computeTransforms(
-        this.exteriorTransform, this.invExteriorTransform,
-        this.exteriorStart(), this.exteriorEnd());
-    }
+        this.exteriorTransform,
+        this.invExteriorTransform,
+        this.exteriorStart(),
+        this.exteriorEnd()
+      );
+    };
 
     public interiorDistance(): number {
       var start = this.interiorStart();
@@ -133,7 +140,6 @@ module BP3D.Model {
     }
 
     private computeTransforms(transform, invTransform, start, end) {
-
       var v1 = start;
       var v2 = end;
 
@@ -154,11 +160,14 @@ module BP3D.Model {
      */
     public distanceTo(x: number, y: number): number {
       // x, y, x1, y1, x2, y2
-      return Core.Utils.pointDistanceFromLine(x, y,
+      return Core.Utils.pointDistanceFromLine(
+        x,
+        y,
         this.interiorStart().x,
         this.interiorStart().y,
         this.interiorEnd().x,
-        this.interiorEnd().y);
+        this.interiorEnd().y
+      );
     }
 
     private getStart() {
@@ -186,57 +195,64 @@ module BP3D.Model {
     }
 
     // these return an object with attributes x, y
-    public interiorEnd(): {x: number, y: number} {
+    public interiorEnd(): { x: number; y: number } {
       var vec = this.halfAngleVector(this, this.next);
       return {
         x: this.getEnd().x + vec.x,
         y: this.getEnd().y + vec.y
-      }
+      };
     }
 
-    public interiorStart(): {x: number, y: number} {
+    public interiorStart(): { x: number; y: number } {
       var vec = this.halfAngleVector(this.prev, this);
       return {
         x: this.getStart().x + vec.x,
         y: this.getStart().y + vec.y
-      }
+      };
     }
 
-    public interiorCenter(): {x: number, y: number} {
+    public interiorCenter(): { x: number; y: number } {
       return {
         x: (this.interiorStart().x + this.interiorEnd().x) / 2.0,
-        y: (this.interiorStart().y + this.interiorEnd().y) / 2.0,
-      }
+        y: (this.interiorStart().y + this.interiorEnd().y) / 2.0
+      };
     }
 
-    public exteriorEnd(): {x: number, y: number}  {
+    public exteriorEnd(): { x: number; y: number } {
       var vec = this.halfAngleVector(this, this.next);
       return {
         x: this.getEnd().x - vec.x,
         y: this.getEnd().y - vec.y
-      }
+      };
     }
 
-    public exteriorStart(): {x: number, y: number}  {
+    public exteriorStart(): { x: number; y: number } {
       var vec = this.halfAngleVector(this.prev, this);
       return {
         x: this.getStart().x - vec.x,
         y: this.getStart().y - vec.y
-      }
+      };
     }
 
     /** Get the corners of the half edge.
      * @returns An array of x,y pairs.
      */
-    public corners(): {x: number, y: number}[] {
-      return [this.interiorStart(), this.interiorEnd(),
-        this.exteriorEnd(), this.exteriorStart()];
+    public corners(): { x: number; y: number }[] {
+      return [
+        this.interiorStart(),
+        this.interiorEnd(),
+        this.exteriorEnd(),
+        this.exteriorStart()
+      ];
     }
 
-    /** 
+    /**
      * Gets CCW angle from v1 to v2
      */
-    private halfAngleVector(v1: HalfEdge, v2: HalfEdge): { x: number, y: number } {
+    private halfAngleVector(
+      v1: HalfEdge,
+      v2: HalfEdge
+    ): { x: number; y: number } {
       // make the best of things if we dont have prev or next
       if (!v1) {
         var v1startX = v2.getStart().x - (v2.getEnd().x - v2.getStart().x);
@@ -267,7 +283,8 @@ module BP3D.Model {
         v1startX - v1endX,
         v1startY - v1endY,
         v2endX - v1endX,
-        v2endY - v1endY);
+        v2endY - v1endY
+      );
 
       // cosine and sine of half angle
       var cs = Math.cos(theta / 2.0);
@@ -282,13 +299,13 @@ module BP3D.Model {
 
       // normalize
       var mag = Core.Utils.distance(0, 0, vx, vy);
-      var desiredMag = (this.offset) / sn;
+      var desiredMag = this.offset / sn;
       var scalar = desiredMag / mag;
 
       var halfAngleVector = {
         x: vx * scalar,
         y: vy * scalar
-      }
+      };
 
       return halfAngleVector;
     }

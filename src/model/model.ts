@@ -1,14 +1,13 @@
 /// <reference path="../../lib/three.d.ts" />
-/// <reference path="../../lib/jQuery.d.ts" />
+/// <reference path="../../lib/jquery.d.ts" />
 /// <reference path="floorplan.ts" />
 /// <reference path="scene.ts" />
 
 module BP3D.Model {
-  /** 
-   * A Model connects a Floorplan and a Scene. 
+  /**
+   * A Model connects a Floorplan and a Scene.
    */
   export class Model {
-
     /** */
     public floorplan: Floorplan;
 
@@ -40,11 +39,8 @@ module BP3D.Model {
       // TODO: a much better serialization format.
       this.roomLoadingCallbacks.fire();
 
-      var data = JSON.parse(json)
-      this.newRoom(
-        data.floorplan,
-        data.items
-      );
+      var data = JSON.parse(json);
+      this.newRoom(data.floorplan, data.items);
 
       this.roomLoadedCallbacks.fire();
     }
@@ -70,7 +66,7 @@ module BP3D.Model {
       }
 
       var room = {
-        floorplan: (this.floorplan.saveFloorplan()),
+        floorplan: this.floorplan.saveFloorplan(),
         items: items_arr
       };
 
@@ -80,20 +76,15 @@ module BP3D.Model {
     private newRoom(floorplan: string, items) {
       this.scene.clearItems();
       this.floorplan.loadFloorplan(floorplan);
-      items.forEach((item) => {
-        var position = new THREE.Vector3(
-          item.xpos, item.ypos, item.zpos);
+      items.forEach(item => {
+        var position = new THREE.Vector3(item.xpos, item.ypos, item.zpos);
         var metadata = {
           itemName: item.item_name,
           resizable: item.resizable,
           itemType: item.item_type,
           modelUrl: item.model_url
         };
-        var scale = new THREE.Vector3(
-          item.scale_x,
-          item.scale_y,
-          item.scale_z
-        );
+        var scale = new THREE.Vector3(item.scale_x, item.scale_y, item.scale_z);
         this.scene.addItem(
           item.item_type,
           item.model_url,
@@ -101,7 +92,8 @@ module BP3D.Model {
           position,
           item.rotation,
           scale,
-          item.fixed);
+          item.fixed
+        );
       });
     }
   }

@@ -1,7 +1,7 @@
-/// <reference path="../../lib/jQuery.d.ts" />
+/// <reference path="../../lib/jquery.d.ts" />
 /// <reference path="../../lib/three.d.ts" />
 /// <reference path="controller.ts" />
-/// <reference path="floorPlan.ts" />
+/// <reference path="floorplan.ts" />
 /// <reference path="lights.ts" />
 /// <reference path="skybox.ts" />
 /// <reference path="controls.ts" />
@@ -15,15 +15,15 @@ module BP3D.Three {
       resize: true,
       pushHref: false,
       spin: true,
-      spinSpeed: .00002,
+      spinSpeed: 0.00002,
       clickPan: true,
       canMoveFixedItems: false
-    }
+    };
 
     // override with manually set options
     for (var opt in options) {
       if (options.hasOwnProperty(opt) && opts.hasOwnProperty(opt)) {
-        options[opt] = opts[opt]
+        options[opt] = opts[opt];
       }
     }
 
@@ -66,14 +66,13 @@ module BP3D.Three {
     function init() {
       THREE.ImageUtils.crossOrigin = "";
 
-      domElement = scope.element.get(0) // Container
+      domElement = scope.element.get(0); // Container
       camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
       renderer = new THREE.WebGLRenderer({
         antialias: true,
         preserveDrawingBuffer: true // required to support .toDataURL()
       });
-      renderer.autoClear = false,
-        renderer.shadowMapEnabled = true;
+      (renderer.autoClear = false), (renderer.shadowMapEnabled = true);
       renderer.shadowMapSoft = true;
       renderer.shadowMapType = THREE.PCFSoftShadowMap;
 
@@ -84,7 +83,13 @@ module BP3D.Three {
       hud = new Three.HUD(scope);
 
       controller = new Three.Controller(
-        scope, model, camera, scope.element, scope.controls, hud);
+        scope,
+        model,
+        camera,
+        scope.element,
+        scope.controls,
+        hud
+      );
 
       domElement.appendChild(renderer.domElement);
 
@@ -100,18 +105,20 @@ module BP3D.Three {
 
       var lights = new Three.Lights(scene, model.floorplan);
 
-      floorplan = new Three.Floorplan(scene,
-        model.floorplan, scope.controls);
+      floorplan = new Three.Floorplan(scene, model.floorplan, scope.controls);
 
       animate();
 
-      scope.element.mouseenter(function () {
-        mouseOver = true;
-      }).mouseleave(function () {
-        mouseOver = false;
-      }).click(function () {
-        hasClicked = true;
-      });
+      scope.element
+        .mouseenter(function () {
+          mouseOver = true;
+        })
+        .mouseleave(function () {
+          mouseOver = false;
+        })
+        .click(function () {
+          hasClicked = true;
+        });
 
       //canvas = new ThreeCanvas(canvasElement, scope);
     }
@@ -120,46 +127,50 @@ module BP3D.Three {
       if (options.spin && !mouseOver && !hasClicked) {
         var theta = 2 * Math.PI * options.spinSpeed * (Date.now() - lastRender);
         scope.controls.rotateLeft(theta);
-        scope.controls.update()
+        scope.controls.update();
       }
     }
 
     this.dataUrl = function () {
       var dataUrl = renderer.domElement.toDataURL("image/png");
       return dataUrl;
-    }
+    };
 
     this.stopSpin = function () {
       hasClicked = true;
-    }
+    };
 
     this.options = function () {
       return options;
-    }
+    };
 
     this.getModel = function () {
       return model;
-    }
+    };
 
     this.getScene = function () {
       return scene;
-    }
+    };
 
     this.getController = function () {
       return controller;
-    }
+    };
 
     this.getCamera = function () {
       return camera;
-    }
+    };
 
     this.needsUpdate = function () {
       needsUpdate = true;
-
-    }
+    };
     function shouldRender() {
       // Do we need to draw a new frame
-      if (scope.controls.needsUpdate || controller.needsUpdate || needsUpdate || model.scene.needsUpdate) {
+      if (
+        scope.controls.needsUpdate ||
+        controller.needsUpdate ||
+        needsUpdate ||
+        model.scene.needsUpdate
+      ) {
         scope.controls.needsUpdate = false;
         controller.needsUpdate = false;
         needsUpdate = false;
@@ -179,7 +190,7 @@ module BP3D.Three {
         renderer.render(hud.getScene(), camera);
       }
       lastRender = Date.now();
-    };
+    }
 
     function animate() {
       var delay = 50;
@@ -187,15 +198,15 @@ module BP3D.Three {
         requestAnimationFrame(animate);
       }, delay);
       render();
-    };
+    }
 
     this.rotatePressed = function () {
       controller.rotatePressed();
-    }
+    };
 
     this.rotateReleased = function () {
       controller.rotateReleased();
-    }
+    };
 
     this.setCursorStyle = function (cursorStyle) {
       domElement.style.cursor = cursorStyle;
@@ -217,7 +228,7 @@ module BP3D.Three {
 
       renderer.setSize(scope.elementWidth, scope.elementHeight);
       needsUpdate = true;
-    }
+    };
 
     this.centerCamera = function () {
       var yOffset = 150.0;
@@ -229,13 +240,12 @@ module BP3D.Three {
 
       var distance = model.floorplan.getSize().z * 1.5;
 
-      var offset = pan.clone().add(
-        new THREE.Vector3(0, distance, distance));
+      var offset = pan.clone().add(new THREE.Vector3(0, distance, distance));
       //scope.controls.setOffset(offset);
       camera.position.copy(offset);
 
       scope.controls.update();
-    }
+    };
 
     // projects the object's center point into x,y screen coords
     // x,y are relative to top left corner of viewer
@@ -251,8 +261,8 @@ module BP3D.Three {
 
       var vec2 = new THREE.Vector2();
 
-      vec2.x = (vector.x * widthHalf) + widthHalf;
-      vec2.y = - (vector.y * heightHalf) + heightHalf;
+      vec2.x = vector.x * widthHalf + widthHalf;
+      vec2.y = -(vector.y * heightHalf) + heightHalf;
 
       if (!ignoreMargin) {
         vec2.x += scope.widthMargin;
@@ -260,8 +270,8 @@ module BP3D.Three {
       }
 
       return vec2;
-    }
+    };
 
     init();
-  }
+  };
 }
