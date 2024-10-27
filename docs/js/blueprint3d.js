@@ -327,6 +327,7 @@ var BP3D;
              * @returns String representation.
              */
             Dimensioning.cmToMeasure = function (cm) {
+                console.log('cm', cm);
                 switch (Core.Configuration.getStringValue(Core.configDimUnit)) {
                     case Core.dimInch:
                         var realFeet = ((cm * 0.393700) / 12);
@@ -389,7 +390,7 @@ var BP3D;
             };
             /** Configuration data loaded from/stored to extern. */
             Configuration.data = {
-                dimUnit: Core.dimInch,
+                dimUnit: Core.dimCentiMeter,
                 wallHeight: 250,
                 wallThickness: 10
             };
