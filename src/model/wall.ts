@@ -1,56 +1,55 @@
-/// <reference path="../../lib/three.d.ts" />
-/// <reference path="../../lib/jquery.d.ts" />
-/// <reference path="../core/configuration.ts" />
-/// <reference path="../core/utils.ts" />
-/// <reference path="../items/item.ts" />
-/// <reference path="corner.ts" />
-/// <reference path="half_edge.ts" />
+import * as THREE from 'three';
+import $ from 'jquery';
+import * as Utils from '../core/utils';
+import { Configuration, configWallThickness, configWallHeight } from '../core/configuration';
 
-module BP3D.Model {
-  /** The default wall texture. */
-  const defaultWallTexture = {
-    url: "rooms/textures/wallmap.png",
-    stretch: true,
-    scale: 0
-  };
+// Import types to avoid circular dependencies
+import type { Corner } from './corner';
+import type { HalfEdge } from './half_edge';
+import type { Item } from '../items/item';
 
-  /**
-   * A Wall is the basic element to create Rooms.
-   *
-   * Walls consists of two half edges.
-   */
-  export class Wall {
-    /** The unique id of each wall. */
-    private id: string;
+/** The default wall texture. */
+export const defaultWallTexture = {
+  url: "rooms/textures/wallmap.png",
+  stretch: true,
+  scale: 0
+};
 
-    /** Front is the plane from start to end. */
-    public frontEdge: HalfEdge = null;
+/**
+ * A Wall is the basic element to create Rooms.
+ *
+ * Walls consists of two half edges.
+ */
+export class Wall {
+  /** The unique id of each wall. */
+  private id: string;
 
-    /** Back is the plane from end to start. */
-    public backEdge: HalfEdge = null;
+  /** Front is the plane from start to end. */
+  public frontEdge: HalfEdge = null;
 
-    /** */
-    public orphan = false;
+  /** Back is the plane from end to start. */
+  public backEdge: HalfEdge = null;
 
-    /** Items attached to this wall */
-    public items: Items.Item[] = [];
+  /** Whether this wall is orphaned (not part of a room) */
+  public orphan = false;
 
-    /** */
-    public onItems: Items.Item[] = [];
+  /** Items attached to this wall */
+  public items: Item[] = [];
 
-    /** The front-side texture. */
-    public frontTexture = defaultWallTexture;
+  /** Items on this wall */
+  public onItems: Item[] = [];
 
-    /** The back-side texture. */
-    public backTexture = defaultWallTexture;
+  /** The front-side texture. */
+  public frontTexture = defaultWallTexture;
 
-    /** Wall thickness. */
-    public thickness = Core.Configuration.getNumericValue(
-      Core.configWallThickness
-    );
+  /** The back-side texture. */
+  public backTexture = defaultWallTexture;
 
-    /** Wall height. */
-    public height = Core.Configuration.getNumericValue(Core.configWallHeight);
+  /** Wall thickness. */
+  public thickness = Configuration.getNumericValue(configWallThickness);
+
+  /** Wall height. */
+  public height = Configuration.getNumericValue(configWallHeight);
 
     /** Actions to be applied after movement. */
     private moved_callbacks = $.Callbacks();
@@ -171,8 +170,14 @@ module BP3D.Model {
       this.fireMoved();
     }
 
+    /**
+     * Calculate the distance from a point to this wall
+     * @param x The x coordinate
+     * @param y The y coordinate
+     * @returns The distance
+     */
     public distanceFrom(x: number, y: number): number {
-      return Core.Utils.pointDistanceFromLine(
+      return Utils.pointDistanceFromLine(
         x,
         y,
         this.getStartX(),
@@ -196,4 +201,13 @@ module BP3D.Model {
       }
     }
   }
+}
+
+// Export as default
+export default Wall;
+
+// Add to global BP3D namespace for backward compatibility with existing code
+if (typeof globalThis !== 'undefined' && (globalThis as any).BP3D) {
+  (globalThis as any).BP3D.Model.Wall = Wall;
+  (globalThis as any).BP3D.Model.defaultWallTexture = defaultWallTexture;
 }

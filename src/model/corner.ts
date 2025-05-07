@@ -1,16 +1,17 @@
-/// <reference path="../../lib/jquery.d.ts" />
-/// <reference path="../core/utils.ts" />
-/// <reference path="floorplan.ts" />
-/// <reference path="wall.ts" />
+import $ from 'jquery';
+import * as Utils from '../core/utils';
 
-module BP3D.Model {
-  /** */
-  const cornerTolerance: number = 20;
+// Import types to avoid circular dependencies
+import type { Floorplan } from './floorplan';
+import type { Wall } from './wall';
 
-  /**
-   * Corners are used to define Walls.
-   */
-  export class Corner {
+/** Tolerance for corner merging */
+export const cornerTolerance: number = 20;
+
+/**
+ * Corners are used to define Walls.
+ */
+export class Corner {
     /** Array of start walls. */
     private wallStarts: Wall[] = [];
 
@@ -38,7 +39,7 @@ module BP3D.Model {
       public y: number,
       public id?: string
     ) {
-      this.id = id || Core.Utils.guid();
+      this.id = id || Utils.guid();
     }
 
     /** Add function to moved callbacks.
@@ -186,7 +187,7 @@ module BP3D.Model {
      *
      */
     public distanceFrom(x: number, y: number): number {
-      var distance = Core.Utils.distance(x, y, this.x, this.y);
+      const distance = Utils.distance(x, y, this.x, this.y);
       //console.log('x,y ' + x + ',' + y + ' to ' + this.getX() + ',' + this.getY() + ' is ' + distance);
       return distance;
     }
@@ -211,8 +212,8 @@ module BP3D.Model {
      * @param wall A wall.
      */
     public detachWall(wall: Wall) {
-      Core.Utils.removeValue(this.wallStarts, wall);
-      Core.Utils.removeValue(this.wallEnds, wall);
+      Utils.removeValue(this.wallStarts, wall);
+      Utils.removeValue(this.wallEnds, wall);
       if (this.wallStarts.length == 0 && this.wallEnds.length == 0) {
         this.remove();
       }
@@ -307,7 +308,7 @@ module BP3D.Model {
           !this.isWallConnected(wall)
         ) {
           // update position to be on wall
-          var intersection = Core.Utils.closestPointOnLine(
+          const intersection = Utils.closestPointOnLine(
             this.x,
             this.y,
             wall.getStart().x,
@@ -356,4 +357,13 @@ module BP3D.Model {
       }
     }
   }
+}
+
+// Export as default
+export default Corner;
+
+// Add to global BP3D namespace for backward compatibility with existing code
+if (typeof globalThis !== 'undefined' && (globalThis as any).BP3D) {
+  (globalThis as any).BP3D.Model.Corner = Corner;
+  (globalThis as any).BP3D.Model.cornerTolerance = cornerTolerance;
 }

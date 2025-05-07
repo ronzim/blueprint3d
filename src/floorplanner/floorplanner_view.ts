@@ -1,62 +1,67 @@
-/// <reference path="../../lib/jquery.d.ts" />
-/// <reference path="../core/configuration.ts" />
-/// <reference path="../core/dimensioning.ts" />
-/// <reference path="../core/utils.ts" />
-/// <reference path="../model/floorplan.ts" />
-/// <reference path="../model/half_edge.ts" />
-/// <reference path="../model/model.ts" />
-/// <reference path="../model/wall.ts" />
-/// <reference path="floorplanner.ts" />
+import $ from 'jquery';
+import * as Utils from '../core/utils';
+import { Dimensioning } from '../core/dimensioning';
 
-module BP3D.Floorplanner {
-  /** */
-  export const floorplannerModes = {
-    MOVE: 0,
-    DRAW: 1,
-    DELETE: 2
-  };
+// Import types to avoid circular dependencies
+import type { Floorplan } from '../model/floorplan';
+import type { HalfEdge } from '../model/half_edge';
+import type { Corner } from '../model/corner';
+import type { Wall } from '../model/wall';
+import type { Room } from '../model/room';
 
-  // grid parameters
-  const gridSpacing = 20; // pixels
-  const gridWidth = 1;
-  const gridColor = "#f1f1f1";
+// Import from floorplanner.ts, using type import to avoid circular dependencies
+import { floorplannerModes } from './floorplanner';
+import type { Floorplanner } from './floorplanner';
 
-  // room config
-  const roomColor = "#f9f9f9";
+// grid parameters
+export const gridSpacing = 20; // pixels
+export const gridWidth = 1;
+export const gridColor = "#f1f1f1";
 
-  // wall config
-  const wallWidth = 5;
-  const wallWidthHover = 7;
-  const wallColor = "#dddddd";
-  const wallColorHover = "#008cba";
-  const edgeColor = "#888888";
-  const edgeColorHover = "#008cba";
-  const edgeWidth = 1;
+// room config
+export const roomColor = "#f9f9f9";
 
-  const deleteColor = "#ff0000";
+// wall config
+export const wallWidth = 5;
+export const wallWidthHover = 7;
+export const wallColor = "#dddddd";
+export const wallColorHover = "#008cba";
+export const edgeColor = "#888888";
+export const edgeColorHover = "#008cba";
+export const edgeWidth = 1;
 
-  // corner config
-  const cornerRadius = 0;
-  const cornerRadiusHover = 7;
-  const cornerColor = "#cccccc";
-  const cornerColorHover = "#008cba";
+export const deleteColor = "#ff0000";
+
+// corner config
+export const cornerRadius = 0;
+export const cornerRadiusHover = 7;
+export const cornerColor = "#cccccc";
+export const cornerColorHover = "#008cba";
 
   /**
    * The View to be used by a Floorplanner to render in/interact with.
    */
-  export class FloorplannerView {
-    /** The canvas element. */
-    private canvasElement: HTMLCanvasElement;
+/**
+ * The View to be used by a Floorplanner to render in/interact with.
+ */
+export class FloorplannerView {
+  /** The canvas element. */
+  private canvasElement: HTMLCanvasElement;
 
-    /** The 2D context. */
-    private context;
+  /** The 2D context. */
+  private context: CanvasRenderingContext2D;
 
-    /** */
-    constructor(
-      private floorplan: Model.Floorplan,
-      private viewmodel: Floorplanner,
-      private canvas: string
-    ) {
+  /**
+   * Creates a new FloorplannerView.
+   * @param floorplan The floorplan to render.
+   * @param viewmodel The floorplanner viewmodel.
+   * @param canvas The canvas element ID.
+   */
+  constructor(
+    private floorplan: Floorplan,
+    private viewmodel: Floorplanner,
+    private canvas: string
+  ) {
       this.canvasElement = <HTMLCanvasElement>document.getElementById(canvas);
       this.context = this.canvasElement.getContext("2d");
 
@@ -115,7 +120,8 @@ module BP3D.Floorplanner {
     }
 
     /** */
-    private drawWallLabels(wall: Model.Wall) {
+    /** Draw wall dimensions. */
+    private drawWallLabels(wall: Wall) {
       // we'll just draw the shorter label... idk
       if (wall.backEdge && wall.frontEdge) {
         if (wall.backEdge.interiorDistance < wall.frontEdge.interiorDistance) {
@@ -131,7 +137,8 @@ module BP3D.Floorplanner {
     }
 
     /** */
-    private drawWall(wall: Model.Wall) {
+    /** Draw a wall. */
+    private drawWall(wall: Wall) {
       var hover = wall === this.viewmodel.activeWall;
       var color = wallColor;
       if (hover && this.viewmodel.mode == floorplannerModes.DELETE) {
@@ -156,7 +163,8 @@ module BP3D.Floorplanner {
     }
 
     /** */
-    private drawEdgeLabel(edge: Model.HalfEdge) {
+    /** Draw an edge label. */
+    private drawEdgeLabel(edge: HalfEdge) {
       var pos = edge.interiorCenter();
       var length = edge.interiorDistance();
       if (length < 60) {
@@ -169,21 +177,21 @@ module BP3D.Floorplanner {
       this.context.textAlign = "center";
       this.context.strokeStyle = "#ffffff";
       this.context.lineWidth = 4;
-
       this.context.strokeText(
-        Core.Dimensioning.cmToMeasure(length),
+        Dimensioning.cmToMeasure(length),
         this.viewmodel.convertX(pos.x),
         this.viewmodel.convertY(pos.y)
       );
       this.context.fillText(
-        Core.Dimensioning.cmToMeasure(length),
+        Dimensioning.cmToMeasure(length),
         this.viewmodel.convertX(pos.x),
         this.viewmodel.convertY(pos.y)
       );
     }
 
     /** */
-    private drawEdge(edge: Model.HalfEdge, hover) {
+    /** Draw an edge. */
+    private drawEdge(edge: HalfEdge, hover: boolean) {
       var color = edgeColor;
       if (hover && this.viewmodel.mode == floorplannerModes.DELETE) {
         color = deleteColor;
@@ -191,13 +199,12 @@ module BP3D.Floorplanner {
         color = edgeColorHover;
       }
       var corners = edge.corners();
-
-      var scope = this;
+      const scope = this;
       this.drawPolygon(
-        Core.Utils.map(corners, function (corner) {
+        Utils.map(corners, function (corner) {
           return scope.viewmodel.convertX(corner.x);
         }),
-        Core.Utils.map(corners, function (corner) {
+        Utils.map(corners, function (corner) {
           return scope.viewmodel.convertY(corner.y);
         }),
         false,
@@ -209,22 +216,22 @@ module BP3D.Floorplanner {
     }
 
     /** */
-    private drawRoom(room: Model.Room) {
-      var scope = this;
+    /** Draw a room. */
+    private drawRoom(room: Room) {
+      const scope = this;
       this.drawPolygon(
-        Core.Utils.map(room.corners, (corner: Model.Corner) => {
+        Utils.map(room.corners, (corner: Corner) => {
           return scope.viewmodel.convertX(corner.x);
         }),
-        Core.Utils.map(room.corners, (corner: Model.Corner) => {
+        Utils.map(room.corners, (corner: Corner) => {
           return scope.viewmodel.convertY(corner.y);
         }),
         true,
         roomColor
       );
     }
-
-    /** */
-    private drawCorner(corner: Model.Corner) {
+    /** Draw a corner. */
+    private drawCorner(corner: Corner) {
       var hover = corner === this.viewmodel.activeCorner;
       var color = cornerColor;
       if (hover && this.viewmodel.mode == floorplannerModes.DELETE) {
@@ -354,4 +361,31 @@ module BP3D.Floorplanner {
       }
     }
   }
+}
+
+// Export as default
+export default FloorplannerView;
+
+// Add to global BP3D namespace for backward compatibility with existing code
+if (typeof globalThis !== 'undefined' && (globalThis as any).BP3D) {
+  (globalThis as any).BP3D.Floorplanner = (globalThis as any).BP3D.Floorplanner || {};
+  (globalThis as any).BP3D.Floorplanner.FloorplannerView = FloorplannerView;
+  
+  // Export constants
+  (globalThis as any).BP3D.Floorplanner.gridSpacing = gridSpacing;
+  (globalThis as any).BP3D.Floorplanner.gridWidth = gridWidth;
+  (globalThis as any).BP3D.Floorplanner.gridColor = gridColor;
+  (globalThis as any).BP3D.Floorplanner.roomColor = roomColor;
+  (globalThis as any).BP3D.Floorplanner.wallWidth = wallWidth;
+  (globalThis as any).BP3D.Floorplanner.wallWidthHover = wallWidthHover;
+  (globalThis as any).BP3D.Floorplanner.wallColor = wallColor;
+  (globalThis as any).BP3D.Floorplanner.wallColorHover = wallColorHover;
+  (globalThis as any).BP3D.Floorplanner.edgeColor = edgeColor;
+  (globalThis as any).BP3D.Floorplanner.edgeColorHover = edgeColorHover;
+  (globalThis as any).BP3D.Floorplanner.edgeWidth = edgeWidth;
+  (globalThis as any).BP3D.Floorplanner.deleteColor = deleteColor;
+  (globalThis as any).BP3D.Floorplanner.cornerRadius = cornerRadius;
+  (globalThis as any).BP3D.Floorplanner.cornerRadiusHover = cornerRadiusHover;
+  (globalThis as any).BP3D.Floorplanner.cornerColor = cornerColor;
+  (globalThis as any).BP3D.Floorplanner.cornerColorHover = cornerColorHover;
 }

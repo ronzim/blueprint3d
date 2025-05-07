@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "",
   "license": "(MIT OR Apache-2.0)",
-  "main": "main.js",
+  "main": "example/js/blueprint3d.js",
+  "type": "module",
   "dependencies": {
     "bootstrap": "^3.3.1",
     "bootstrap-tour": "^0.10.1",
@@ -16,25 +17,24 @@
     "vec2": "^1.6.0"
   },
   "devDependencies": {
-    "browserify": "^8.0.2",
-    "grunt": "^1.0.1",
-    "grunt-contrib-clean": "^1.0.0",
-    "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-uglify": "^1.0.1",
-    "grunt-string-replace": "^1.2.1",
-    "grunt-subgrunt": "^1.2.0",
-    "grunt-typedoc": "^0.2.4",
-    "grunt-typescript": "^0.8.0",
-    "matchdep": "^1.0.1"
+    "vite": "^4.3.9",
+    "@vitejs/plugin-legacy": "^4.0.3",
+    "typescript": "^5.0.4",
+    "@types/jquery": "^2.0.48",
+    "@types/bootstrap": "^3.3.36",
+    "@types/three": "^0.144.0",
+    "@types/underscore": "^1.11.4",
+    "regenerator-runtime": "^0.13.11"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Ekki/blueprint3d.git"
   },
   "scripts": {
-    "build": "browserify src/blueprint3d.js > example/js/blueprint3d.js --verbose",
-    "dev": "grunt"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
   },
   "author": ""
 }

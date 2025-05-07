@@ -3,17 +3,39 @@
   <head>
     <title>Blueprint 3D - Example</title>
 
-    <link href="css/bootstrap.css" rel="stylesheet">
-    <link href="css/example.css" rel="stylesheet">
+    <!-- Import CSS with Vite -->
+    <!-- Use the Vite preprocessor to handle CSS with proper source maps -->
+    <link rel="stylesheet" href="/css/bootstrap.css" />
+    <link rel="stylesheet" href="/css/example.css" />
 
-    <script src="js/three.min.js"></script>
-    <script src="js/blueprint3d.js"></script>
-
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.js"></script>
-    
-    <script src="js/items.js"></script>
-    <script src="js/example.js"></script>
+    <!-- Main Application Entry Point -->
+    <script type="module">
+      // Import dependencies from node_modules
+      import * as THREE from 'three';
+      import $ from 'jquery';
+      import 'bootstrap';
+      
+      // Make them available globally for compatibility with existing code
+      window.THREE = THREE;
+      window.jQuery = window.$ = $;
+      
+      // Import blueprint3d library using the alias defined in vite.config.ts
+      import * as BP3D from 'blueprint3d';
+      window.BP3D = BP3D;
+      
+      // Import application modules with relative paths
+      import init from './js/example.js';
+      import initItems from './js/items.js';
+      
+      // Initialize the application when document is ready
+      $(document).ready(() => {
+        // Initialize items
+        initItems();
+        
+        // Initialize main application
+        init();
+      });
+    </script>
   </head>
 
   <body>

@@ -1,277 +1,407 @@
-/// <reference path="../../lib/jquery.d.ts" />
-/// <reference path="../../lib/three.d.ts" />
-/// <reference path="controller.ts" />
-/// <reference path="floorplan.ts" />
-/// <reference path="lights.ts" />
-/// <reference path="skybox.ts" />
-/// <reference path="controls.ts" />
-/// <reference path="hud.ts" />
+import * as THREE from 'three';
+import $ from 'jquery';
 
-module BP3D.Three {
-  export var Main = function (model, element, canvasElement, opts) {
-    var scope = this;
+// Import types to avoid circular dependencies
+import type { Model } from '../model/model';
+import type { Controller } from './controller';
+import type { Floorplan as ThreeFloorplan } from './floorplan';
+import type { Controls } from './controls';
+import type { HUD } from './hud';
 
-    var options = {
-      resize: true,
-      pushHref: false,
-      spin: true,
-      spinSpeed: 0.00002,
-      clickPan: true,
-      canMoveFixedItems: false
-    };
+// Default options for the 3D viewer
+const DEFAULT_OPTIONS = {
+  resize: true,
+  pushHref: false,
+  spin: true,
+  spinSpeed: 0.00002,
+  clickPan: true,
+  canMoveFixedItems: false
+};
 
+/**
+ * The main 3D viewer class that manages the scene, camera, renderer, etc.
+ */
+export class Main {
+  // DOM elements
+  public element: JQuery;
+  private domElement: HTMLElement;
+  
+  // THREE.js components
+  private camera: THREE.PerspectiveCamera;
+  private renderer: THREE.WebGLRenderer;
+  public controls: Controls;
+  
+  // Blueprint3D specific components  
+  private controller: Controller;
+  private floorplan: ThreeFloorplan;
+  private hud: HUD;
+  
+  // Render state
+  private needsUpdate = false;
+  private lastRender = Date.now();
+  private mouseOver = false;
+  private hasClicked = false;
+  
+  // Element dimensions
+  public heightMargin: number;
+  public widthMargin: number;
+  public elementHeight: number;
+  public elementWidth: number;
+  
+  // Callbacks
+  public itemSelectedCallbacks = $.Callbacks();
+  public itemUnselectedCallbacks = $.Callbacks();
+  public wallClicked = $.Callbacks();
+  public floorClicked = $.Callbacks();
+  public nothingClicked = $.Callbacks();
+  
+  // Options
+  private options: any;
+  
+  /**
+   * Create a new 3D viewer.
+   * @param model The model to render.
+   * @param element The DOM element to render into.
+   * @param canvasElement The canvas element to use (unused?).
+   * @param opts Options for the viewer.
+   */
+  constructor(private model: Model, element: string, canvasElement: string, opts: any = {}) {
+    // Store a reference to this for callbacks
+    const scope = this;
+
+    // Initialize options with defaults and overrides
+    this.options = { ...DEFAULT_OPTIONS };
+    
     // override with manually set options
-    for (var opt in options) {
-      if (options.hasOwnProperty(opt) && opts.hasOwnProperty(opt)) {
-        options[opt] = opts[opt];
+    for (const opt in DEFAULT_OPTIONS) {
+      if (DEFAULT_OPTIONS.hasOwnProperty(opt) && opts.hasOwnProperty(opt)) {
+        this.options[opt] = opts[opt];
       }
     }
-
-    var scene = model.scene;
-
-    var model = model;
+    
+    // Initialize DOM elements
     this.element = $(element);
-    var domElement;
+    
+    // Initialize the viewer
+    this.init();
 
-    var camera;
-    var renderer;
-    this.controls;
-    var canvas;
-    var controller;
-    var floorplan;
-
-    //var canvas;
-    //var canvasElement = canvasElement;
-
-    var needsUpdate = false;
-
-    var lastRender = Date.now();
-    var mouseOver = false;
-    var hasClicked = false;
-
-    var hud;
-
-    this.heightMargin;
-    this.widthMargin;
-    this.elementHeight;
-    this.elementWidth;
-
-    this.itemSelectedCallbacks = $.Callbacks(); // item
-    this.itemUnselectedCallbacks = $.Callbacks();
-
-    this.wallClicked = $.Callbacks(); // wall
-    this.floorClicked = $.Callbacks(); // floor
-    this.nothingClicked = $.Callbacks();
-
-    function init() {
-      THREE.ImageUtils.crossOrigin = "";
-
-      domElement = scope.element.get(0); // Container
-      camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
-      renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        preserveDrawingBuffer: true // required to support .toDataURL()
+  /**
+   * Initialize the 3D viewer.
+   */
+  private init() {
+    // Import dependencies dynamically to avoid circular dependencies
+    const { Skybox } = require('./skybox');
+    const { Controls } = require('./controls');
+    const { HUD } = require('./hud');
+    const { Controller } = require('./controller');
+    const { Lights } = require('./lights');
+    const { Floorplan: ThreeFloorplan } = require('./floorplan');
+    
+    // Set up THREE.js
+    THREE.ImageUtils.crossOrigin = "";
+    
+    // Set up DOM and rendering
+    this.domElement = this.element.get(0); // Container
+    this.camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      preserveDrawingBuffer: true // required to support .toDataURL()
+    });
+    
+    // Configure renderer
+    this.renderer.autoClear = false;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    
+    // Create scene components
+    const scene = this.model.scene;
+    const skybox = new Skybox(scene);
+    
+    // Set up controls and HUD
+    this.controls = new Controls(this.camera, this.domElement);
+    this.hud = new HUD(this);
+    
+    // Set up controller
+    this.controller = new Controller(
+      this,
+      this.model,
+      this.camera,
+      this.element,
+      this.controls,
+      this.hud
+    );
+    
+    // Add renderer to DOM
+    this.domElement.appendChild(this.renderer.domElement);
+    
+    // Handle window resizing
+    this.updateWindowSize();
+    if (this.options.resize) {
+      $(window).resize(() => this.updateWindowSize());
+    }
+    
+    // Set up camera
+    this.centerCamera();
+    this.model.floorplan.fireOnUpdatedRooms(() => this.centerCamera());
+    
+    // Set up lights and floorplan
+    const lights = new Lights(scene, this.model.floorplan);
+    this.floorplan = new ThreeFloorplan(scene, this.model.floorplan, this.controls);
+    
+    // Start animation
+    this.animate();
+    
+    // Set up mouse events
+    this.element
+      .mouseenter(() => {
+        this.mouseOver = true;
+      })
+      .mouseleave(() => {
+        this.mouseOver = false;
+      })
+      .click(() => {
+        this.hasClicked = true;
       });
-      (renderer.autoClear = false), (renderer.shadowMapEnabled = true);
-      renderer.shadowMapSoft = true;
-      renderer.shadowMapType = THREE.PCFSoftShadowMap;
+  }
 
-      var skybox = new Three.Skybox(scene);
-
-      scope.controls = new Three.Controls(camera, domElement);
-
-      hud = new Three.HUD(scope);
-
-      controller = new Three.Controller(
-        scope,
-        model,
-        camera,
-        scope.element,
-        scope.controls,
-        hud
-      );
-
-      domElement.appendChild(renderer.domElement);
-
-      // handle window resizing
-      scope.updateWindowSize();
-      if (options.resize) {
-        $(window).resize(scope.updateWindowSize);
-      }
-
-      // setup camera nicely
-      scope.centerCamera();
-      model.floorplan.fireOnUpdatedRooms(scope.centerCamera);
-
-      var lights = new Three.Lights(scene, model.floorplan);
-
-      floorplan = new Three.Floorplan(scene, model.floorplan, scope.controls);
-
-      animate();
-
-      scope.element
-        .mouseenter(function () {
-          mouseOver = true;
-        })
-        .mouseleave(function () {
-          mouseOver = false;
-        })
-        .click(function () {
-          hasClicked = true;
-        });
-
-      //canvas = new ThreeCanvas(canvasElement, scope);
+  /**
+   * Spin the camera if enabled.
+   */
+  private spin() {
+    if (this.options.spin && !this.mouseOver && !this.hasClicked) {
+      const theta = 2 * Math.PI * this.options.spinSpeed * (Date.now() - this.lastRender);
+      this.controls.rotateLeft(theta);
+      this.controls.update();
     }
+  }
+  
+  /**
+   * Get a data URL of the current view.
+   * @returns Data URL of the current view.
+   */
+  public dataUrl(): string {
+    return this.renderer.domElement.toDataURL("image/png");
+  }
+  
+  /**
+   * Stop the camera from spinning.
+   */
+  public stopSpin(): void {
+    this.hasClicked = true;
+  }
+  
+  /**
+   * Get the viewer options.
+   * @returns The options object.
+   */
+  public getOptions(): any {
+    return this.options;
+  }
+  
+  /**
+   * Get the model.
+   * @returns The model.
+   */
+  public getModel(): Model {
+    return this.model;
+  }
+  
+  /**
+   * Get the scene.
+   * @returns The scene.
+   */
+  public getScene(): any {
+    return this.model.scene;
+  }
+  
+  /**
+   * Get the controller.
+   * @returns The controller.
+   */
+  public getController(): Controller {
+    return this.controller;
+  }
+  
+  /**
+   * Get the camera.
+   * @returns The camera.
+   */
+  public getCamera(): THREE.PerspectiveCamera {
+    return this.camera;
+  }
+  
+  /**
+   * Mark the scene as needing an update.
+   */
+  public needsUpdate(): void {
+    this.needsUpdate = true;
+  }
 
-    function spin() {
-      if (options.spin && !mouseOver && !hasClicked) {
-        var theta = 2 * Math.PI * options.spinSpeed * (Date.now() - lastRender);
-        scope.controls.rotateLeft(theta);
-        scope.controls.update();
-      }
+  /**
+   * Check if the scene needs to be rendered.
+   * @returns Whether the scene needs rendering.
+   */
+  private shouldRender(): boolean {
+    // Do we need to draw a new frame
+    if (
+      this.controls.needsUpdate ||
+      this.controller.needsUpdate ||
+      this.needsUpdate ||
+      this.model.scene.needsUpdate
+    ) {
+      this.controls.needsUpdate = false;
+      this.controller.needsUpdate = false;
+      this.needsUpdate = false;
+      this.model.scene.needsUpdate = false;
+      return true;
+    } else {
+      return false;
     }
+  }
 
-    this.dataUrl = function () {
-      var dataUrl = renderer.domElement.toDataURL("image/png");
-      return dataUrl;
-    };
+  /**
+   * Render the scene.
+   */
+  private render(): void {
+    try {
+      this.spin();
+      if (this.shouldRender()) {
+        this.renderer.clear();
+        this.renderer.render(this.model.scene.getScene(), this.camera);
+        this.renderer.clearDepth();
+        this.renderer.render(this.hud.getScene(), this.camera);
+      }
+      this.lastRender = Date.now();
+    } catch (error) {
+      console.error('Error rendering scene:', error);
+    }
+  }
 
-    this.stopSpin = function () {
-      hasClicked = true;
-    };
+  /**
+   * Start the animation loop.
+   */
+  private animate(): void {
+    const delay = 50;
+    setTimeout(() => {
+      try {
+        requestAnimationFrame(() => this.animate());
+        this.render();
+      } catch (error) {
+        console.error('Error in animation loop:', error);
+      }
+    }, delay);
+  }
 
-    this.options = function () {
-      return options;
-    };
+  /**
+   * Notify that the rotate button was pressed.
+   */
+  public rotatePressed(): void {
+    this.controller.rotatePressed();
+  }
 
-    this.getModel = function () {
-      return model;
-    };
+  /**
+   * Notify that the rotate button was released.
+   */
+  public rotateReleased(): void {
+    this.controller.rotateReleased();
+  }
 
-    this.getScene = function () {
-      return scene;
-    };
+  /**
+   * Set the cursor style.
+   * @param cursorStyle The CSS cursor style.
+   */
+  public setCursorStyle(cursorStyle: string): void {
+    this.domElement.style.cursor = cursorStyle;
+  }
 
-    this.getController = function () {
-      return controller;
-    };
+  /**
+   * Update the window size.
+   */
+  public updateWindowSize(): void {
+    try {
+      this.heightMargin = this.element.offset().top;
+      this.widthMargin = this.element.offset().left;
 
-    this.getCamera = function () {
-      return camera;
-    };
-
-    this.needsUpdate = function () {
-      needsUpdate = true;
-    };
-    function shouldRender() {
-      // Do we need to draw a new frame
-      if (
-        scope.controls.needsUpdate ||
-        controller.needsUpdate ||
-        needsUpdate ||
-        model.scene.needsUpdate
-      ) {
-        scope.controls.needsUpdate = false;
-        controller.needsUpdate = false;
-        needsUpdate = false;
-        model.scene.needsUpdate = false;
-        return true;
+      this.elementWidth = this.element.innerWidth();
+      if (this.options.resize) {
+        this.elementHeight = window.innerHeight - this.heightMargin;
       } else {
-        return false;
-      }
-    }
-
-    function render() {
-      spin();
-      if (shouldRender()) {
-        renderer.clear();
-        renderer.render(scene.getScene(), camera);
-        renderer.clearDepth();
-        renderer.render(hud.getScene(), camera);
-      }
-      lastRender = Date.now();
-    }
-
-    function animate() {
-      var delay = 50;
-      setTimeout(function () {
-        requestAnimationFrame(animate);
-      }, delay);
-      render();
-    }
-
-    this.rotatePressed = function () {
-      controller.rotatePressed();
-    };
-
-    this.rotateReleased = function () {
-      controller.rotateReleased();
-    };
-
-    this.setCursorStyle = function (cursorStyle) {
-      domElement.style.cursor = cursorStyle;
-    };
-
-    this.updateWindowSize = function () {
-      scope.heightMargin = scope.element.offset().top;
-      scope.widthMargin = scope.element.offset().left;
-
-      scope.elementWidth = scope.element.innerWidth();
-      if (options.resize) {
-        scope.elementHeight = window.innerHeight - scope.heightMargin;
-      } else {
-        scope.elementHeight = scope.element.innerHeight();
+        this.elementHeight = this.element.innerHeight();
       }
 
-      camera.aspect = scope.elementWidth / scope.elementHeight;
-      camera.updateProjectionMatrix();
+      this.camera.aspect = this.elementWidth / this.elementHeight;
+      this.camera.updateProjectionMatrix();
 
-      renderer.setSize(scope.elementWidth, scope.elementHeight);
-      needsUpdate = true;
-    };
+      this.renderer.setSize(this.elementWidth, this.elementHeight);
+      this.needsUpdate = true;
+    } catch (error) {
+      console.error('Error updating window size:', error);
+    }
+  }
 
-    this.centerCamera = function () {
-      var yOffset = 150.0;
+  /**
+   * Center the camera on the floorplan.
+   */
+  public centerCamera(): void {
+    try {
+      const yOffset = 150.0;
 
-      var pan = model.floorplan.getCenter();
+      const pan = this.model.floorplan.getCenter();
       pan.y = yOffset;
 
-      scope.controls.target = pan;
+      this.controls.target = pan;
 
-      var distance = model.floorplan.getSize().z * 1.5;
+      const distance = this.model.floorplan.getSize().z * 1.5;
 
-      var offset = pan.clone().add(new THREE.Vector3(0, distance, distance));
-      //scope.controls.setOffset(offset);
-      camera.position.copy(offset);
+      const offset = pan.clone().add(new THREE.Vector3(0, distance, distance));
+      this.camera.position.copy(offset);
 
-      scope.controls.update();
-    };
+      this.controls.update();
+    } catch (error) {
+      console.error('Error centering camera:', error);
+    }
+  }
 
-    // projects the object's center point into x,y screen coords
-    // x,y are relative to top left corner of viewer
-    this.projectVector = function (vec3, ignoreMargin) {
-      ignoreMargin = ignoreMargin || false;
+  /**
+   * Projects a 3D vector to 2D screen coordinates.
+   * @param vec3 The 3D vector to project.
+   * @param ignoreMargin Whether to ignore the margin.
+   * @returns The 2D coordinates.
+   */
+  public projectVector(vec3: THREE.Vector3, ignoreMargin?: boolean): THREE.Vector2 {
+    ignoreMargin = ignoreMargin || false;
 
-      var widthHalf = scope.elementWidth / 2;
-      var heightHalf = scope.elementHeight / 2;
+    try {
+      const widthHalf = this.elementWidth / 2;
+      const heightHalf = this.elementHeight / 2;
 
-      var vector = new THREE.Vector3();
+      const vector = new THREE.Vector3();
       vector.copy(vec3);
-      vector.project(camera);
+      vector.project(this.camera);
 
-      var vec2 = new THREE.Vector2();
+      const vec2 = new THREE.Vector2();
 
       vec2.x = vector.x * widthHalf + widthHalf;
       vec2.y = -(vector.y * heightHalf) + heightHalf;
 
       if (!ignoreMargin) {
-        vec2.x += scope.widthMargin;
-        vec2.y += scope.heightMargin;
+        vec2.x += this.widthMargin;
+        vec2.y += this.heightMargin;
       }
 
       return vec2;
-    };
+    } catch (error) {
+      console.error('Error projecting vector:', error);
+      return new THREE.Vector2();
+    }
+  }
+}
 
-    init();
-  };
+// Export as default
+export default Main;
+
+// Add to global BP3D namespace for backward compatibility with existing code
+if (typeof globalThis !== 'undefined' && (globalThis as any).BP3D) {
+  (globalThis as any).BP3D.Three = (globalThis as any).BP3D.Three || {};
+  (globalThis as any).BP3D.Three.Main = Main;
 }

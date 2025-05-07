@@ -1,7 +1,9 @@
 // add items to the "Add Items" tab
+import $ from 'jquery';
 
-$(document).ready(function() {
-  var items = [
+// Initialize items when DOM is ready
+const initItems = () => {
+  const items = [
    {
       "name" : "Closed Door",
       "image" : "models/thumbnails/thumbnail_Screen_Shot_2014-10-27_at_8.04.12_PM.png",
@@ -164,10 +166,10 @@ $(document).ready(function() {
 
 
 
-  var itemsDiv = $("#items-wrapper")
-  for (var i = 0; i < items.length; i++) {
-    var item = items[i];
-    var html = '<div class="col-sm-4">' +
+  const itemsDiv = $("#items-wrapper");
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const html = '<div class="col-sm-4">' +
                 '<a class="thumbnail add-item" model-name="' + 
                 item.name + 
                 '" model-url="' +
@@ -181,4 +183,10 @@ $(document).ready(function() {
                 '</a></div>';
     itemsDiv.append(html);
   }
-});
+};
+
+// Export the init function
+export default initItems;
+
+// Initialize when document is ready
+$(document).ready(initItems);

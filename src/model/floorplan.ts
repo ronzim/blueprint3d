@@ -1,42 +1,43 @@
-/// <reference path="../../lib/jquery.d.ts" />
-/// <reference path="../../lib/three.d.ts" />
-/// <reference path="../core/utils.ts" />
-/// <reference path="wall.ts" />
-/// <reference path="corner.ts" />
-/// <reference path="room.ts" />
-/// <reference path="half_edge.ts" />
+import * as THREE from 'three';
+import $ from 'jquery';
+import * as Utils from '../core/utils';
 
-module BP3D.Model {
-  /** */
-  const defaultFloorPlanTolerance = 10.0;
+// Import types to avoid circular dependencies
+import type { Wall } from './wall';
+import type { Corner } from './corner';
+import type { Room } from './room';
+import type { HalfEdge } from './half_edge';
 
-  /**
-   * A Floorplan represents a number of Walls, Corners and Rooms.
-   */
-  export class Floorplan {
-    /** */
-    private walls: Wall[] = [];
+/** Default tolerance for detecting overlapping */
+const defaultFloorPlanTolerance = 10.0;
 
-    /** */
-    private corners: Corner[] = [];
+/**
+ * A Floorplan represents a number of Walls, Corners and Rooms.
+ */
+export class Floorplan {
+  /** Walls in the floorplan */
+  private walls: Wall[] = [];
 
-    /** */
-    private rooms: Room[] = [];
+  /** Corners in the floorplan */
+  private corners: Corner[] = [];
 
-    /** */
-    private new_wall_callbacks = $.Callbacks();
+  /** Rooms in the floorplan */
+  private rooms: Room[] = [];
 
-    /** */
-    private new_corner_callbacks = $.Callbacks();
+  /** Callbacks when a new wall is added */
+  private new_wall_callbacks = $.Callbacks();
 
-    /** */
-    private redraw_callbacks = $.Callbacks();
+  /** Callbacks when a new corner is added */
+  private new_corner_callbacks = $.Callbacks();
 
-    /** */
-    private updated_rooms = $.Callbacks();
+  /** Callbacks when the floorplan needs to be redrawn */
+  private redraw_callbacks = $.Callbacks();
 
-    /** */
-    public roomLoadedCallbacks = $.Callbacks();
+  /** Callbacks when rooms are updated */
+  private updated_rooms = $.Callbacks();
+
+  /** Callbacks when room is loaded */
+  public roomLoadedCallbacks = $.Callbacks();
 
     /**
      * Floor textures are owned by the floorplan, because room objects are
@@ -78,8 +79,12 @@ module BP3D.Model {
       return planes;
     }
 
+    /**
+     * Get all floor planes in the floorplan
+     * @returns Array of floor plane meshes
+     */
     private floorPlanes(): THREE.Mesh[] {
-      return Core.Utils.map(this.rooms, (room: Room) => {
+      return Utils.map(this.rooms, (room: Room) => {
         return room.floorPlane;
       });
     }
@@ -107,11 +112,13 @@ module BP3D.Model {
      * @returns The new wall.
      */
     public newWall(start: Corner, end: Corner): Wall {
-      var wall = new Wall(start, end);
+      // Import Wall dynamically to avoid circular dependencies
+      const { Wall } = require('./wall');
+      
+      const wall = new Wall(start, end);
       this.walls.push(wall);
-      var scope = this;
       wall.fireOnDelete(() => {
-        scope.removeWall(wall);
+        this.removeWall(wall);
       });
       this.new_wall_callbacks.fire(wall);
       this.update();
@@ -121,8 +128,12 @@ module BP3D.Model {
     /** Removes a wall.
      * @param wall The wall to be removed.
      */
+    /**
+     * Removes a wall from the floorplan.
+     * @param wall The wall to be removed.
+     */
     private removeWall(wall: Wall) {
-      Core.Utils.removeValue(this.walls, wall);
+      Utils.removeValue(this.walls, wall);
       this.update();
     }
 
@@ -133,11 +144,21 @@ module BP3D.Model {
      * @param id An optional id. If unspecified, the id will be created internally.
      * @returns The new corner.
      */
+    /**
+     * Creates a new corner in the floorplan.
+     * @param x The x coordinate.
+     * @param y The y coordinate.
+     * @param id An optional id. If unspecified, the id will be created internally.
+     * @returns The new corner.
+     */
     public newCorner(x: number, y: number, id?: string): Corner {
-      var corner = new Corner(this, x, y, id);
+      // Import Corner dynamically to avoid circular dependencies
+      const { Corner } = require('./corner');
+      
+      const corner = new Corner(this, x, y, id);
       this.corners.push(corner);
       corner.fireOnDelete(() => {
-        this.removeCorner;
+        this.removeCorner(corner); // Fix missing function call here
       });
       this.new_corner_callbacks.fire(corner);
       return corner;
@@ -146,8 +167,12 @@ module BP3D.Model {
     /** Removes a corner.
      * @param corner The corner to be removed.
      */
+    /**
+     * Removes a corner from the floorplan.
+     * @param corner The corner to be removed.
+     */
     private removeCorner(corner: Corner) {
-      Core.Utils.removeValue(this.corners, corner);
+      Utils.removeValue(this.corners, corner);
     }
 
     /** Gets the walls. */
@@ -269,11 +294,11 @@ module BP3D.Model {
 
     /** clear out obsolete floor textures */
     private updateFloorTextures() {
-      var uuids = Core.Utils.map(this.rooms, function (room) {
+      const uuids = Utils.map(this.rooms, function (room) {
         return room.getUuid();
       });
-      for (var uuid in this.floorTextures) {
-        if (!Core.Utils.hasValue(uuids, uuid)) {
+      for (const uuid in this.floorTextures) {
+        if (!Utils.hasValue(uuids, uuid)) {
           delete this.floorTextures[uuid];
         }
       }
@@ -305,6 +330,8 @@ module BP3D.Model {
       this.rooms = [];
       var scope = this;
       roomCorners.forEach(corners => {
+        // Import Room dynamically to avoid circular dependencies
+        const { Room } = require('./room');
         scope.rooms.push(new Room(scope, corners));
       });
       this.assignOrphanEdges();
@@ -365,9 +392,11 @@ module BP3D.Model {
       this.walls.forEach(wall => {
         if (!wall.backEdge && !wall.frontEdge) {
           wall.orphan = true;
-          var back = new HalfEdge(null, wall, false);
+          // Import HalfEdge dynamically to avoid circular dependencies
+          const { HalfEdge } = require('./half_edge');
+          const back = new HalfEdge(null, wall, false);
           back.generatePlane();
-          var front = new HalfEdge(null, wall, true);
+          const front = new HalfEdge(null, wall, true);
           front.generatePlane();
           orphanWalls.push(wall);
         }
@@ -386,7 +415,7 @@ module BP3D.Model {
         currentCorner: Corner,
         nextCorner: Corner
       ) {
-        var theta = Core.Utils.angle2pi(
+        const theta = Utils.angle2pi(
           previousCorner.x - currentCorner.x,
           previousCorner.y - currentCorner.y,
           nextCorner.x - currentCorner.x,
@@ -396,19 +425,19 @@ module BP3D.Model {
       }
 
       function _removeDuplicateRooms(roomArray: Corner[][]): Corner[][] {
-        var results: Corner[][] = [];
-        var lookup = {};
-        var hashFunc = function (corner) {
+        const results: Corner[][] = [];
+        const lookup: {[key: string]: boolean} = {};
+        const hashFunc = function (corner: Corner) {
           return corner.id;
         };
-        var sep = "-";
-        for (var i = 0; i < roomArray.length; i++) {
+        const sep = "-";
+        for (let i = 0; i < roomArray.length; i++) {
           // rooms are cycles, shift it around to check uniqueness
-          var add = true;
-          var room = roomArray[i];
-          for (var j = 0; j < room.length; j++) {
-            var roomShift = Core.Utils.cycle(room, j);
-            var str = Core.Utils.map(roomShift, hashFunc).join(sep);
+          let add = true;
+          const room = roomArray[i];
+          for (let j = 0; j < room.length; j++) {
+            const roomShift = Utils.cycle(room, j);
+            const str = Utils.map(roomShift, hashFunc).join(sep);
             if (lookup.hasOwnProperty(str)) {
               add = false;
             }
@@ -508,12 +537,21 @@ module BP3D.Model {
       // remove duplicates
       var uniqueLoops = _removeDuplicateRooms(loops);
       //remove CW loops
-      var uniqueCCWLoops = Core.Utils.removeIf(
+      const uniqueCCWLoops = Utils.removeIf(
         uniqueLoops,
-        Core.Utils.isClockwise
+        Utils.isClockwise
       );
 
       return uniqueCCWLoops;
     }
   }
+}
+
+// Export for backward compatibility and default export
+export default Floorplan;
+
+// Add to global BP3D namespace for backward compatibility with existing code
+if (typeof globalThis !== 'undefined' && (globalThis as any).BP3D) {
+  (globalThis as any).BP3D.Model.Floorplan = Floorplan;
+  (globalThis as any).BP3D.Model.defaultFloorPlanTolerance = defaultFloorPlanTolerance;
 }

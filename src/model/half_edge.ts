@@ -1,16 +1,19 @@
-/// <reference path="../../lib/three.d.ts" />
-/// <reference path="../../lib/jquery.d.ts" />
-/// <reference path="../core/utils.ts" />
+import * as THREE from 'three';
+import $ from 'jquery';
+import * as Utils from '../core/utils';
 
-module BP3D.Model {
-  /**
-   * Half Edges are created by Room.
-   *
-   * Once rooms have been identified, Half Edges are created for each interior wall.
-   *
-   * A wall can have two half edges if it is visible from both sides.
-   */
-  export class HalfEdge {
+// Import types to avoid circular dependencies
+import type { Room } from './room';
+import type { Wall } from './wall';
+
+/**
+ * Half Edges are created by Room.
+ *
+ * Once rooms have been identified, Half Edges are created for each interior wall.
+ *
+ * A wall can have two half edges if it is visible from both sides.
+ */
+export class HalfEdge {
     /** The successor edge in CCW ??? direction. */
     public next: HalfEdge;
 
@@ -134,23 +137,23 @@ module BP3D.Model {
     };
 
     public interiorDistance(): number {
-      var start = this.interiorStart();
-      var end = this.interiorEnd();
-      return Core.Utils.distance(start.x, start.y, end.x, end.y);
+      const start = this.interiorStart();
+      const end = this.interiorEnd();
+      return Utils.distance(start.x, start.y, end.x, end.y);
     }
 
     private computeTransforms(transform, invTransform, start, end) {
       var v1 = start;
       var v2 = end;
 
-      var angle = Core.Utils.angle(1, 0, v2.x - v1.x, v2.y - v1.y);
+      const angle = Utils.angle(1, 0, v2.x - v1.x, v2.y - v1.y);
 
-      var tt = new THREE.Matrix4();
+      const tt = new THREE.Matrix4();
       tt.makeTranslation(-v1.x, 0, -v1.y);
-      var tr = new THREE.Matrix4();
+      const tr = new THREE.Matrix4();
       tr.makeRotationY(-angle);
       transform.multiplyMatrices(tr, tt);
-      invTransform.getInverse(transform);
+      invTransform.copy(transform).invert();
     }
 
     /** Gets the distance from specified point.
@@ -160,7 +163,7 @@ module BP3D.Model {
      */
     public distanceTo(x: number, y: number): number {
       // x, y, x1, y1, x2, y2
-      return Core.Utils.pointDistanceFromLine(
+      return Utils.pointDistanceFromLine(
         x,
         y,
         this.interiorStart().x,
@@ -279,7 +282,7 @@ module BP3D.Model {
       }
 
       // CCW angle between edges
-      var theta = Core.Utils.angle2pi(
+      const theta = Utils.angle2pi(
         v1startX - v1endX,
         v1startY - v1endY,
         v2endX - v1endX,
@@ -298,9 +301,9 @@ module BP3D.Model {
       var vy = v2dx * sn + v2dy * cs;
 
       // normalize
-      var mag = Core.Utils.distance(0, 0, vx, vy);
-      var desiredMag = this.offset / sn;
-      var scalar = desiredMag / mag;
+      const mag = Utils.distance(0, 0, vx, vy);
+      const desiredMag = this.offset / sn;
+      const scalar = desiredMag / mag;
 
       var halfAngleVector = {
         x: vx * scalar,
@@ -310,4 +313,12 @@ module BP3D.Model {
       return halfAngleVector;
     }
   }
+}
+
+// Export as default
+export default HalfEdge;
+
+// Add to global BP3D namespace for backward compatibility with existing code
+if (typeof globalThis !== 'undefined' && (globalThis as any).BP3D) {
+  (globalThis as any).BP3D.Model.HalfEdge = HalfEdge;
 }

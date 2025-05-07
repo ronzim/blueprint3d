@@ -1,9 +1,11 @@
-/// <reference path="../../lib/three.d.ts" />
-/// <reference path="../../lib/jquery.d.ts" />
-/// <reference path="../core/utils.ts" />
-/// <reference path="corner.ts" />
-/// <reference path="floorplan.ts" />
-/// <reference path="half_edge.ts" />
+import * as THREE from 'three';
+import $ from 'jquery';
+import * as Utils from '../core/utils';
+
+// Import types to avoid circular dependencies
+import type { Corner } from './corner';
+import type { Floorplan } from './floorplan';
+import type { HalfEdge } from './half_edge';
 
 /*
 TODO
@@ -12,17 +14,16 @@ var segseg = require('segseg')
 var Polygon = require('polygon')
 */
 
-module BP3D.Model {
-  /** Default texture to be used if nothing is provided. */
-  const defaultRoomTexture = {
-    url: "rooms/textures/hardwood.png",
-    scale: 400
-  };
+/** Default texture to be used if nothing is provided. */
+export const defaultRoomTexture = {
+  url: "rooms/textures/hardwood.png",
+  scale: 400
+};
 
-  /**
-   * A Room is the combination of a Floorplan with a floor plane.
-   */
-  export class Room {
+/**
+ * A Room is the combination of a Floorplan with a floor plane.
+ */
+export class Room {
     /** */
     public interiorCorners: Corner[] = [];
 
@@ -46,45 +47,63 @@ module BP3D.Model {
       this.updateInteriorCorners();
       this.generatePlane();
     }
+    
+    /**
+     * Gets the UUID of this room, which is the sorted list of corner UUIDs.
+     * @returns The UUID of this room.
+     */
 
-    private getUuid(): string {
-      var cornerUuids = Core.Utils.map(this.corners, function (c) {
+    public getUuid(): string {
+      const cornerUuids = Utils.map(this.corners, function (c) {
         return c.id;
       });
       cornerUuids.sort();
       return cornerUuids.join();
     }
-
+    /**
+     * Add a callback to be fired when the floor changes.
+     * @param callback The callback to be added.
+     */
     public fireOnFloorChange(callback) {
       this.floorChangeCallbacks.add(callback);
     }
 
-    private getTexture() {
-      var uuid = this.getUuid();
-      var tex = this.floorplan.getFloorTexture(uuid);
+    /**
+     * Get the texture for this room's floor.
+     * @returns The texture object for this room.
+     */
+    public getTexture() {
+      const uuid = this.getUuid();
+      const tex = this.floorplan.getFloorTexture(uuid);
       return tex || defaultRoomTexture;
     }
 
     /**
+     * Set the texture for this room's floor.
      * textureStretch always true, just an argument for consistency with walls
+     * @param textureUrl The URL of the new texture.
+     * @param textureStretch Whether to stretch the texture (unused).
+     * @param textureScale The scale of the texture.
      */
-    private setTexture(
+    public setTexture(
       textureUrl: string,
-      textureStretch,
+      textureStretch: boolean,
       textureScale: number
     ) {
-      var uuid = this.getUuid();
+      const uuid = this.getUuid();
       this.floorplan.setFloorTexture(uuid, textureUrl, textureScale);
       this.floorChangeCallbacks.fire();
     }
-
+    /**
+     * Generate the floor plane mesh for this room.
+     */
     private generatePlane() {
-      var points = [];
+      const points = [];
       this.interiorCorners.forEach(corner => {
         points.push(new THREE.Vector2(corner.x, corner.y));
       });
-      var shape = new THREE.Shape(points);
-      var geometry = new THREE.ShapeGeometry(shape);
+      const shape = new THREE.Shape(points);
+      const geometry = new THREE.ShapeGeometry(shape);
       this.floorPlane = new THREE.Mesh(
         geometry,
         new THREE.MeshBasicMaterial({
@@ -93,10 +112,14 @@ module BP3D.Model {
       );
       this.floorPlane.visible = false;
       this.floorPlane.rotation.set(Math.PI / 2, 0, 0);
-      (<any>this.floorPlane).room = this; // js monkey patch
+      (this.floorPlane as any).room = this; // js monkey patch
     }
-
-    private cycleIndex(index) {
+    /**
+     * Cycle through the room indices with wrapping.
+     * @param index The current index.
+     * @returns The wrapped index.
+     */
+    private cycleIndex(index: number): number {
       if (index < 0) {
         return (index += this.corners.length);
       } else {
@@ -104,8 +127,11 @@ module BP3D.Model {
       }
     }
 
+    /**
+     * Update the interior corners of the room.
+     */
     private updateInteriorCorners() {
-      var edge = this.edgePointer;
+      let edge = this.edgePointer;
       while (true) {
         this.interiorCorners.push(edge.interiorStart());
         edge.generatePlane();
@@ -116,27 +142,30 @@ module BP3D.Model {
         }
       }
     }
-
     /**
      * Populates each wall's half edge relating to this room
      * this creates a fancy doubly connected edge list (DCEL)
      */
     private updateWalls() {
-      var prevEdge = null;
-      var firstEdge = null;
+      // Import HalfEdge dynamically to avoid circular dependencies
+      const { HalfEdge } = require('./half_edge');
+      
+      let prevEdge = null;
+      let firstEdge = null;
+      let edge = null;
 
-      for (var i = 0; i < this.corners.length; i++) {
-        var firstCorner = this.corners[i];
-        var secondCorner = this.corners[(i + 1) % this.corners.length];
+      for (let i = 0; i < this.corners.length; i++) {
+        const firstCorner = this.corners[i];
+        const secondCorner = this.corners[(i + 1) % this.corners.length];
 
         // find if wall is heading in that direction
-        var wallTo = firstCorner.wallTo(secondCorner);
-        var wallFrom = firstCorner.wallFrom(secondCorner);
+        const wallTo = firstCorner.wallTo(secondCorner);
+        const wallFrom = firstCorner.wallFrom(secondCorner);
 
         if (wallTo) {
-          var edge = new HalfEdge(this, wallTo, true);
+          edge = new HalfEdge(this, wallTo, true);
         } else if (wallFrom) {
-          var edge = new HalfEdge(this, wallFrom, false);
+          edge = new HalfEdge(this, wallFrom, false);
         } else {
           // something horrible has happened
           console.log("corners arent connected by a wall, uh oh");
@@ -159,4 +188,13 @@ module BP3D.Model {
       this.edgePointer = firstEdge;
     }
   }
+}
+
+// Export as default
+export default Room;
+
+// Add to global BP3D namespace for backward compatibility with existing code
+if (typeof globalThis !== 'undefined' && (globalThis as any).BP3D) {
+  (globalThis as any).BP3D.Model.Room = Room;
+  (globalThis as any).BP3D.Model.defaultRoomTexture = defaultRoomTexture;
 }

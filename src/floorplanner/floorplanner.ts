@@ -1,15 +1,25 @@
-/// <reference path="../../lib/jquery.d.ts" />
-/// <reference path="../model/floorplan.ts" />
-/// <reference path="floorplanner_view.ts" />
+import $ from 'jquery';
 
-module BP3D.Floorplanner {
-  /** how much will we move a corner to make a wall axis aligned (cm) */
-  const snapTolerance = 25;
+// Import types to avoid circular dependencies
+import type { Floorplan } from '../model/floorplan';
+import type { FloorplannerView } from './floorplanner_view';
+import type { Corner } from '../model/corner';
+import type { Wall } from '../model/wall';
 
-  /**
-   * The Floorplanner implements an interactive tool for creation of floorplans.
-   */
-  export class Floorplanner {
+/** Floorplanner modes */
+export enum floorplannerModes {
+  MOVE = 0,
+  DRAW = 1,
+  DELETE = 2
+}
+
+/** how much will we move a corner to make a wall axis aligned (cm) */
+export const snapTolerance = 25;
+
+/**
+ * The Floorplanner implements an interactive tool for creation of floorplans.
+ */
+export class Floorplanner {
     /** */
     public mode = 0;
 
@@ -77,9 +87,16 @@ module BP3D.Floorplanner {
     private pixelsPerCm: number;
 
     /** */
-    constructor(canvas: string, private floorplan: Model.Floorplan) {
+    /**
+     * Create a new floorplanner.
+     * @param canvas The canvas element ID.
+     * @param floorplan The floorplan to edit.
+     */
+    constructor(canvas: string, private floorplan: Floorplan) {
       this.canvasElement = $("#" + canvas);
 
+      // Import FloorplannerView dynamically to avoid circular dependencies
+      const { FloorplannerView } = require('./floorplanner_view');
       this.view = new FloorplannerView(this.floorplan, this, canvas);
 
       var cmPerFoot = 30.48;
@@ -303,4 +320,14 @@ module BP3D.Floorplanner {
       return (y - this.originY * this.cmPerPixel) * this.pixelsPerCm;
     }
   }
+
+// Export for backward compatibility and default export
+export default Floorplanner;
+
+// Add to global BP3D namespace for backward compatibility with existing code
+if (typeof globalThis !== 'undefined' && (globalThis as any).BP3D) {
+  (globalThis as any).BP3D.Floorplanner = (globalThis as any).BP3D.Floorplanner || {};
+  (globalThis as any).BP3D.Floorplanner.Floorplanner = Floorplanner;
+  (globalThis as any).BP3D.Floorplanner.snapTolerance = snapTolerance;
+  (globalThis as any).BP3D.Floorplanner.floorplannerModes = floorplannerModes;
 }
