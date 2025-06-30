@@ -1,69 +1,67 @@
-/// <reference path="../../lib/three.d.ts" />
+import * as THREE from 'three';
+import { Scene } from '../model/scene';
 
-module BP3D.Three {
-  export var Skybox = function (scene) {
+export class Skybox {
+  private scene: Scene;
 
-    var scope = this;
+  private topColor = 0xffffff;
+  private bottomColor = 0xe9e9e9;
+  private verticalOffset = 500;
+  private sphereRadius = 4000;
+  private widthSegments = 32;
+  private heightSegments = 15;
 
-    var scene = scene;
+  private vertexShader = [
+    "varying vec3 vWorldPosition;",
+    "void main() {",
+    "  vec4 worldPosition = modelMatrix * vec4( position, 1.0 );",
+    "  vWorldPosition = worldPosition.xyz;",
+    "  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
+    "}"
+  ].join('\n');
 
-    var topColor = 0xffffff;//0xD8ECF9
-    var bottomColor = 0xe9e9e9; //0xf9f9f9;//0x565e63
-    var verticalOffset = 500
-    var sphereRadius = 4000
-    var widthSegments = 32
-    var heightSegments = 15
+  private fragmentShader = [
+    "uniform vec3 topColor;",
+    "uniform vec3 bottomColor;",
+    "uniform float offset;",
+    "varying vec3 vWorldPosition;",
+    "void main() {",
+    "  float h = normalize( vWorldPosition + offset ).y;",
+    "  gl_FragColor = vec4( mix( bottomColor, topColor, (h + 1.0) / 2.0), 1.0 );",
+    "}"
+  ].join('\n');
 
-    var vertexShader = [
-      "varying vec3 vWorldPosition;",
-      "void main() {",
-      "  vec4 worldPosition = modelMatrix * vec4( position, 1.0 );",
-      "  vWorldPosition = worldPosition.xyz;",
-      "  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
-      "}"
-    ].join('\n');
+  constructor(scene: Scene) {
+    this.scene = scene;
+    this.init();
+  }
 
-    var fragmentShader = [
-      "uniform vec3 topColor;",
-      "uniform vec3 bottomColor;",
-      "uniform float offset;",
-      "varying vec3 vWorldPosition;",
-      "void main() {",
-      "  float h = normalize( vWorldPosition + offset ).y;",
-      "  gl_FragColor = vec4( mix( bottomColor, topColor, (h + 1.0) / 2.0), 1.0 );",
-      "}"
-    ].join('\n');
-
-    function init() {
-
-      var uniforms = {
-        topColor: {
-          type: "c",
-          value: new THREE.Color(topColor)
-        },
-        bottomColor: {
-          type: "c",
-          value: new THREE.Color(bottomColor)
-        },
-        offset: {
-          type: "f",
-          value: verticalOffset
-        }
+  private init() {
+    var uniforms = {
+      topColor: {
+        type: "c",
+        value: new THREE.Color(this.topColor)
+      },
+      bottomColor: {
+        type: "c",
+        value: new THREE.Color(this.bottomColor)
+      },
+      offset: {
+        type: "f",
+        value: this.verticalOffset
       }
-
-      var skyGeo = new THREE.SphereGeometry(
-        sphereRadius, widthSegments, heightSegments);
-      var skyMat = new THREE.ShaderMaterial({
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-        uniforms: uniforms,
-        side: THREE.BackSide
-      });
-
-      var sky = new THREE.Mesh(skyGeo, skyMat);
-      scene.add(sky);
     }
 
-    init();
+    var skyGeo = new THREE.SphereGeometry(
+      this.sphereRadius, this.widthSegments, this.heightSegments);
+    var skyMat = new THREE.ShaderMaterial({
+      vertexShader: this.vertexShader,
+      fragmentShader: this.fragmentShader,
+      uniforms: uniforms,
+      side: THREE.BackSide
+    });
+
+    var sky = new THREE.Mesh(skyGeo, skyMat);
+    this.scene.add(sky);
   }
 }

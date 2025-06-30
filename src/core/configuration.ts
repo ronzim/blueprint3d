@@ -1,53 +1,36 @@
-/// <reference path="dimensioning.ts" />
+import { dimCentiMeter } from './dimensioning';
 
-module BP3D.Core {
-  // GENERAL:
+export const configDimUnit = "dimUnit";
+export const configWallHeight = "wallHeight";
+export const configWallThickness = "wallThickness";
 
-  /** The dimensioning unit for 2D floorplan measurements. */
-  export const configDimUnit = "dimUnit";
+export class Configuration {
+  private static data: { [key: string]: any } = {
+    dimUnit: dimCentiMeter,
+    wallHeight: 250,
+    wallThickness: 10
+  };
 
-  // WALL:
+  public static setValue(key: string, value: string | number) {
+    this.data[key] = value;
+  }
 
-  /** The initial wall height in cm. */
-  export const configWallHeight = "wallHeight";
-
-  /** The initial wall thickness in cm. */
-  export const configWallThickness = "wallThickness";
-
-  /** Global configuration to customize the whole system.  */
-  export class Configuration {
-    /** Configuration data loaded from/stored to extern. */
-    private static data: { [key: string]: any } = {
-      dimUnit: dimCentiMeter,
-
-      wallHeight: 250,
-      wallThickness: 10
-    };
-
-    /** Set a configuration parameter. */
-    public static setValue(key: string, value: string | number) {
-      this.data[key] = value;
+  public static getStringValue(key: string): string {
+    switch (key) {
+      case configDimUnit:
+        return <string>this.data[key];
+      default:
+        throw new Error("Invalid string configuration parameter: " + key);
     }
+  }
 
-    /** Get a string configuration parameter. */
-    public static getStringValue(key: string): string {
-      switch (key) {
-        case configDimUnit:
-          return <string>this.data[key];
-        default:
-          throw new Error("Invalid string configuration parameter: " + key);
-      }
-    }
-
-    /** Get a numeric configuration parameter. */
-    public static getNumericValue(key: string): number {
-      switch (key) {
-        case configWallHeight:
-        case configWallThickness:
-          return <number>this.data[key];
-        default:
-          throw new Error("Invalid numeric configuration parameter: " + key);
-      }
+  public static getNumericValue(key: string): number {
+    switch (key) {
+      case configWallHeight:
+      case configWallThickness:
+        return <number>this.data[key];
+      default:
+        throw new Error("Invalid numeric configuration parameter: " + key);
     }
   }
 }
