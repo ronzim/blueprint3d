@@ -84,7 +84,7 @@ div {
  */
 
 #viewer {
-  display: none;
+  display: block;
 }
 
 #floorplanner {
