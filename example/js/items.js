@@ -1,6 +1,6 @@
 // add items to the "Add Items" tab
 
-$(document).ready(function() {
+var addItems = function(itemsDiv) {
   var items = [
    {
       "name" : "Closed Door",
@@ -181,4 +181,4 @@ $(document).ready(function() {
                 '</a></div>';
     itemsDiv.append(html);
   }
-});
+};

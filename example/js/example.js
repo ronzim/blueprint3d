@@ -324,6 +324,7 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
 
   // TODO: this doesn't really belong here
   function initItems() {
+    addItems($("#items-wrapper"));
     $("#add-items").find(".add-item").mousedown(function(e) {
       var modelUrl = $(this).attr("model-url");
       var itemType = parseInt($(this).attr("model-type"));
@@ -424,15 +425,15 @@ var ViewerFloorplanner = function(blueprint3d) {
       $(draw).removeClass(activeStlye);
       $(remove).removeClass(activeStlye);
       $(move).removeClass(activeStlye);
-      if (mode == this.floorplanner.constructor.floorplannerModes.MOVE) {
+      if (mode == scope.floorplanner.constructor.floorplannerModes.MOVE) {
           $(move).addClass(activeStlye);
-      } else if (mode == this.floorplanner.constructor.floorplannerModes.DRAW) {
+      } else if (mode == scope.floorplanner.constructor.floorplannerModes.DRAW) {
           $(draw).addClass(activeStlye);
-      } else if (mode == this.floorplanner.constructor.floorplannerModes.DELETE) {
+      } else if (mode == scope.floorplanner.constructor.floorplannerModes.DELETE) {
           $(remove).addClass(activeStlye);
       }
 
-      if (mode == this.floorplanner.constructor.floorplannerModes.DRAW) {
+      if (mode == scope.floorplanner.constructor.floorplannerModes.DRAW) {
         $("#draw-walls-hint").show();
         scope.handleWindowResize();
       } else {
@@ -441,15 +442,15 @@ var ViewerFloorplanner = function(blueprint3d) {
     });
 
     $(move).click(function(){
-      scope.floorplanner.setMode(this.floorplanner.constructor.floorplannerModes.MOVE);
+      scope.floorplanner.setMode(scope.floorplanner.constructor.floorplannerModes.MOVE);
     });
 
     $(draw).click(function(){
-      scope.floorplanner.setMode(this.floorplanner.constructor.floorplannerModes.DRAW);
+      scope.floorplanner.setMode(scope.floorplanner.constructor.floorplannerModes.DRAW);
     });
 
     $(remove).click(function(){
-      scope.floorplanner.setMode(this.floorplanner.constructor.floorplannerModes.DELETE);
+      scope.floorplanner.setMode(scope.floorplanner.constructor.floorplannerModes.DELETE);
     });
   }
 
@@ -506,8 +507,7 @@ var mainControls = function(blueprint3d) {
  * Initialize!
  */
 
-$(document).ready(function() {
-  var blueprint3d = window.blueprint3d;
+window.initExampleUI = function(blueprint3d) {
   var modalEffects = new ModalEffects(blueprint3d);
   var viewerFloorplanner = new ViewerFloorplanner(blueprint3d);
   var contextMenu = new ContextMenu(blueprint3d);
@@ -516,5 +516,5 @@ $(document).ready(function() {
   var cameraButtons = new CameraButtons(blueprint3d);
   mainControls(blueprint3d);
   blueprint3d.model.loadSerialized('{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}');
-});
+};
 
