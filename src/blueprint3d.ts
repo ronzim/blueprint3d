@@ -46,3 +46,5 @@ module BP3D {
     }
   }
 }
+
+export default BP3D;
