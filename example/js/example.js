@@ -1,3 +1,4 @@
+import { BP3D } from "../../src/blueprint3d";
 
 /*
  * Camera Buttons
