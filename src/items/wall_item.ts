@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import * as Utils from '../core/utils';
 import { Model, HalfEdge } from '../model';
 import { Item } from './item';

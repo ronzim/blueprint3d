@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { Model } from '../model';
 import { FloorItem } from './floor_item';
 import { Metadata } from './metadata';

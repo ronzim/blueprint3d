@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { Model } from '../model';
 import { WallItem } from './wall_item';
 import { Metadata } from './metadata';

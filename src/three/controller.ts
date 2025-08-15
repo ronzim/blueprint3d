@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import * as Utils from '../core/utils';
 
 export var Controller = function (

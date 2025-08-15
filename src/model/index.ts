@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import * as Utils from '../core/utils';
 import { Configuration, configWallThickness, configWallHeight } from '../core/configuration';
 import { Item } from '../items/item';

@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export var Skybox = function (scene) {
 
   var scope = this;

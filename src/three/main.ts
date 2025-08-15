@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { Controller } from './controller';
 import { Floorplan } from './floorplan';
 import { Lights } from './lights';

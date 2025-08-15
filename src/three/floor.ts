@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export var Floor = function (scene, room) {
 
   var scope = this;

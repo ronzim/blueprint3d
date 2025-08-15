@@ -8,6 +8,8 @@ Contributors:
  * @author erich666 / http://erichaines.com
  */
 
+import * as THREE from 'three';
+
 export function Controls(object, domElement) {
   this.object = object;
   this.domElement = domElement !== undefined ? domElement : document;
