@@ -1,5 +1,5 @@
 import { Blueprint3d } from "../../src/blueprint3d";
-import { floorplannerModes } from "../floorplanner/floorplanner";
+import { floorplannerModes } from "../../src/floorplanner/floorplanner";
 
 /*
  * Camera Buttons
