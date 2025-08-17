@@ -2,7 +2,7 @@ import { Configuration, configDimUnit } from '../core/configuration';
 import { Dimensioning } from '../core/dimensioning';
 import * as Utils from '../core/utils';
 import { Floorplan, HalfEdge, Wall, Corner, Room } from '../model';
-import { Floorplanner } from './floorplanner';
+import { Floorplanner, floorplannerModes } from './floorplanner';
 
 // grid parameters
 const gridSpacing = 20; // pixels
