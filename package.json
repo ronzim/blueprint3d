@@ -17,6 +17,8 @@
   },
   "devDependencies": {
     "browserify": "^8.0.2",
+    "jest": "^30.0.5",
+    "puppeteer": "^24.16.2",
     "typescript": "^5.0.0",
     "vite": "^5.0.0"
   },
@@ -26,7 +28,9 @@
   },
   "scripts": {
     "build": "browserify src/blueprint3d.js > example/js/blueprint3d.js --verbose",
-    "dev": "vite"
+    "dev": "vite",
+    "test": "npm run dev & npm run test:e2e",
+    "test:e2e": "jest tests/e2e/console.spec.js"
   },
   "author": ""
 }
