@@ -63,7 +63,7 @@ export default {
       return inches * 2.54;
     },
     itemSelected(item) {
-      this.selectedItem = item.item;
+      this.selectedItem = item;
       this.itemName = this.selectedItem.metadata.itemName;
       this.width = this.cmToIn(this.selectedItem.getWidth()).toFixed(0);
       this.height = this.cmToIn(this.selectedItem.getHeight()).toFixed(0);

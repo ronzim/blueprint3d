@@ -13,15 +13,15 @@
     "segseg": "^0.2.1",
     "three": "^0.69.0",
     "underscore": "^1.7.0",
-    "vec2": "^1.6.0",
-    "vue": "^3.5.18"
+    "vec2": "^1.6.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
     "jest": "^30.0.5",
     "puppeteer": "^24.16.2",
     "typescript": "^5.0.0",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "vue": "^3.5.18"
   },
   "repository": {
     "type": "git",
