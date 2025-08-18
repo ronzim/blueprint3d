@@ -34,38 +34,38 @@ export default {
       items: [
         {
           "name" : "Closed Door",
-          "image" : "models/thumbnails/thumbnail_Screen_Shot_2014-10-27_at_8.04.12_PM.png",
-          "model" : "models/js/closed-door28x80_baked.js",
+          "image" : "/example/models/thumbnails/thumbnail_Screen_Shot_2014-10-27_at_8.04.12_PM.png",
+          "model" : "/example/models/js/closed-door28x80_baked.js",
           "type" : "7"
         },
         {
           "name" : "Open Door",
-          "image" : "models/thumbnails/thumbnail_Screen_Shot_2014-10-27_at_8.22.46_PM.png",
-          "model" : "models/js/open_door.js",
+          "image" : "/example/models/thumbnails/thumbnail_Screen_Shot_2014-10-27_at_8.22.46_PM.png",
+          "model" : "/example/models/js/open_door.js",
           "type" : "7"
         },
         {
           "name" : "Window",
-          "image" : "models/thumbnails/thumbnail_window.png",
-          "model" : "models/js/whitewindow.js",
+          "image" : "/example/models/thumbnails/thumbnail_window.png",
+          "model" : "/example/models/js/whitewindow.js",
           "type" : "3"
         },
         {
           "name" : "Chair",
-          "image" : "models/thumbnails/thumbnail_Church-Chair-oak-white_1024x1024.jpg",
-          "model" : "models/js/gus-churchchair-whiteoak.js",
+          "image" : "/example/models/thumbnails/thumbnail_Church-Chair-oak-white_1024x1024.jpg",
+          "model" : "/example/models/js/gus-churchchair-whiteoak.js",
           "type" : "1"
         },
         {
           "name" : "Red Chair",
-          "image" : "models/thumbnails/thumbnail_tn-orange.png",
-          "model" : "models/js/ik-ekero-orange_baked.js",
+          "image" : "/example/models/thumbnails/thumbnail_tn-orange.png",
+          "model" : "/example/models/js/ik-ekero-orange_baked.js",
           "type" : "1"
         },
         {
           "name" : "Blue Chair",
-          "image" : "models/thumbnails/thumbnail_ekero-blue3.png",
-          "model" : "models/js/ik-ekero-blue_baked.js",
+          "image" : "/example/models/thumbnails/thumbnail_ekero-blue3.png",
+          "model" : "/example/models/js/ik-ekero-blue_baked.js",
           "type" : "1"
         },
       ]

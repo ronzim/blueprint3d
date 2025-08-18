@@ -6,8 +6,6 @@
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/example.css" rel="stylesheet">
 
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.js"></script>
     <script type="module" src="js/example.js"></script>
     <script type="module" src="js/main.js"></script>
   </head>
@@ -26,44 +24,8 @@
           <!-- Context Menu -->
           <div id="context-menu-container"></div>
 
-          <!-- Floor textures -->
-          <div id="floorTexturesDiv" style="display:none; padding: 0 20px">
-            <div class="panel panel-default">
-              <div class="panel-heading">Adjust Floor</div>
-              <div class="panel-body" style="color: #333333">
-
-                <div class="col-sm-6" style="padding: 3px">
-                  <a href="#" class="thumbnail texture-select-thumbnail" texture-url="rooms/textures/light_fine_wood.jpg" texture-stretch="false" texture-scale="300">
-                    <img alt="Thumbnail light fine wood" src="rooms/thumbnails/thumbnail_light_fine_wood.jpg" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Wall Textures -->
-          <div id="wallTextures" style="display:none; padding: 0 20px">
-            <div class="panel panel-default">
-              <div class="panel-heading">Adjust Wall</div>
-              <div class="panel-body" style="color: #333333">
-                <div class="col-sm-6" style="padding: 3px">
-                  <a href="#" class="thumbnail texture-select-thumbnail" texture-url="rooms/textures/marbletiles.jpg" texture-stretch="false" texture-scale="300">
-                    <img alt="Thumbnail marbletiles" src="rooms/thumbnails/thumbnail_marbletiles.jpg" />
-                  </a>
-                </div>
-                <div class="col-sm-6" style="padding: 3px">
-                  <a href="#" class="thumbnail texture-select-thumbnail" texture-url="rooms/textures/wallmap_yellow.png" texture-stretch="true" texture-scale="">
-                    <img alt="Thumbnail wallmap yellow" src="rooms/thumbnails/thumbnail_wallmap_yellow.png" />
-                  </a>
-                </div>
-                <div class="col-sm-6" style="padding: 3px">
-                  <a href="#" class="thumbnail texture-select-thumbnail" texture-url="rooms/textures/light_brick.jpg" texture-stretch="false" texture-scale="100">
-                    <img alt="Thumbnail light brick" src="rooms/thumbnails/thumbnail_light_brick.jpg" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
+          <!-- Texture Selector -->
+          <div id="texture-selector-container"></div>
         </div>
 
         <!-- Right Column -->
@@ -76,34 +38,14 @@
 
             <div id="camera-controls-container"></div>
 
-            <div id="loading-modal">
-              <h1>Loading...</h1>  
-            </div>
+            <div id="loading-modal-container"></div>
           </div>
 
           <!-- 2D Floorplanner -->
           <div id="floorplanner">
             <canvas id="floorplanner-canvas"></canvas>
-            <div id="floorplanner-controls">
-
-              <button id="move" class="btn btn-sm btn-default">
-                <span class="glyphicon glyphicon-move"></span>
-                Move Walls
-              </button>
-              <button id="draw" class="btn btn-sm btn-default">
-                <span class="glyphicon glyphicon-pencil"></span>
-                Draw Walls
-              </button>
-              <button id="delete" class="btn btn-sm btn-default">
-                <span class="glyphicon glyphicon-remove"></span>
-                Delete Walls
-              </button>
-              <span class="pull-right">
-                <button class="btn btn-primary btn-sm" id="update-floorplan">Done &raquo;</button>
-              </span>
-
-            </div>
-            <div id="draw-walls-hint">
+            <div id="floorplanner-controls-container"></div>
+            <div id="draw-walls-hint" style="display:none;">
               Press the "Esc" key to stop drawing walls
             </div>
           </div>
