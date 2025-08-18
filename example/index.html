@@ -8,12 +8,12 @@
 
     <script src="js/jquery.js"></script>
     <script src="js/bootstrap.js"></script>
+
+    <script src="js/items.js"></script>
     <script type="module" src="js/example.js"></script>
-    <script type="module" src="js/main.js"></script>
   </head>
 
   <body>
-    <div id="app"></div>
 
     <div class="container-fluid">
       <div class="row main-row">
@@ -37,7 +37,53 @@
           <hr />
 
           <!-- Context Menu -->
-          <div id="context-menu-container"></div>
+          <div id="context-menu">
+            <div style="margin: 0 20px">
+              <span id="context-menu-name" class="lead"></span>
+              <br /><br />
+              <button class="btn btn-block btn-danger" id="context-menu-delete">
+                <span class="glyphicon glyphicon-trash"></span>
+                Delete Item
+              </button>
+            <br />
+            <div class="panel panel-default">
+              <div class="panel-heading">Adjust Size</div>
+              <div class="panel-body" style="color: #333333">
+
+                <div class="form form-horizontal" class="lead">
+                  <div class="form-group">
+                    <label class="col-sm-5 control-label">
+                       Width
+                    </label>
+                    <div class="col-sm-6">
+                      <input type="number" class="form-control" id="item-width">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-5 control-label">
+                      Depth
+                    </label>
+                    <div class="col-sm-6">
+                      <input type="number" class="form-control" id="item-depth">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-5 control-label">
+                      Height
+                    </label>
+                    <div class="col-sm-6">
+                      <input type="number" class="form-control" id="item-height">
+                    </div>
+                  </div>
+                </div>
+                <small><span class="text-muted">Measurements in inches.</span></small>
+              </div>
+            </div>
+
+            <label><input type="checkbox" id="fixed" /> Lock in place</label>
+            <br /><br />
+            </div>
+          </div>
 
           <!-- Floor textures -->
           <div id="floorTexturesDiv" style="display:none; padding: 0 20px">
@@ -161,7 +207,10 @@
 
           <!-- Add Items -->
           <div id="add-items">
-            <div id="vue-add-items"></div>
+            <div class="row" id="items-wrapper">
+
+              <!-- Items added here by items.js -->
+            </div>
           </div>
       
         </div>

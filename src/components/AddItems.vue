@@ -182,8 +182,7 @@ export default {
         itemType: parseInt(item.type)
       };
       this.$blueprint3d.model.scene.addItem(parseInt(item.type), item.model, metadata);
-
-      window.sideMenu.setCurrentState(window.sideMenu.states.DEFAULT);
+      this.$emit('item-added');
     },
   },
 };

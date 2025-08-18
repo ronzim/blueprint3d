@@ -84,6 +84,76 @@ var CameraButtons = function(blueprint3d) {
 }
 
 /*
+ * Context menu for selected item
+ */
+
+var ContextMenu = function(blueprint3d) {
+
+  var scope = this;
+  var selectedItem;
+  var three = blueprint3d.three;
+
+  function init() {
+    $("#context-menu-delete").click(function(event) {
+        selectedItem.remove();
+    });
+
+    three.itemSelectedCallbacks.add(itemSelected);
+    three.itemUnselectedCallbacks.add(itemUnselected);
+
+    initResize();
+
+    $("#fixed").click(function() {
+        var checked = $(this).prop('checked');
+        selectedItem.setFixed(checked);
+    });
+  }
+
+  function cmToIn(cm) {
+    return cm / 2.54;
+  }
+
+  function inToCm(inches) {
+    return inches * 2.54;
+  }
+
+  function itemSelected(item) {
+    selectedItem = item;
+
+    $("#context-menu-name").text(item.metadata.itemName);
+
+    $("#item-width").val(cmToIn(selectedItem.getWidth()).toFixed(0));
+    $("#item-height").val(cmToIn(selectedItem.getHeight()).toFixed(0));
+    $("#item-depth").val(cmToIn(selectedItem.getDepth()).toFixed(0));
+
+    $("#context-menu").show();
+
+    $("#fixed").prop('checked', item.fixed);
+  }
+
+  function resize() {
+    selectedItem.resize(
+      inToCm($("#item-height").val()),
+      inToCm($("#item-width").val()),
+      inToCm($("#item-depth").val())
+    );
+  }
+
+  function initResize() {
+    $("#item-height").change(resize);
+    $("#item-width").change(resize);
+    $("#item-depth").change(resize);
+  }
+
+  function itemUnselected() {
+    selectedItem = null;
+    $("#context-menu").hide();
+  }
+
+  init();
+}
+
+/*
  * Loading modal for items
  */
 
@@ -174,11 +244,13 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
     blueprint3d.three.updateWindowSize();
     handleWindowResize();
 
-    scope.setCurrentState(scope.states.DEFAULT);
+    initItems();
+
+    setCurrentState(scope.states.DEFAULT);
   }
 
   function floorplanUpdate() {
-    scope.setCurrentState(scope.states.DEFAULT);
+    setCurrentState(scope.states.DEFAULT);
   }
 
   function tabClicked(tab) {
@@ -190,14 +262,14 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
       for (var key in scope.states) {
         var state = scope.states[key];
         if (state.tab == tab) {
-          scope.setCurrentState(state);
+          setCurrentState(state);
           break;
         }
       }
     }
   }
   
-  scope.setCurrentState = function(newState) {
+  function setCurrentState(newState) {
 
     if (currentState == newState) {
       return;
@@ -251,6 +323,23 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
     $("#add-items").height(window.innerHeight);
 
   };
+
+  // TODO: this doesn't really belong here
+  function initItems() {
+    $("#add-items").find(".add-item").mousedown(function(e) {
+      var modelUrl = $(this).attr("model-url");
+      var itemType = parseInt($(this).attr("model-type"));
+      var metadata = {
+        itemName: $(this).attr("model-name"),
+        resizable: true,
+        modelUrl: modelUrl,
+        itemType: itemType
+      }
+
+      blueprint3d.model.scene.addItem(itemType, modelUrl, metadata);
+      setCurrentState(scope.states.DEFAULT);
+    });
+  }
 
   init();
 
@@ -430,21 +519,16 @@ $(document).ready(function() {
     widget: false
   }
   var blueprint3d = new Blueprint3d(opts);
-  window.blueprint3d = blueprint3d;
 
   var modalEffects = new ModalEffects(blueprint3d);
   var viewerFloorplanner = new ViewerFloorplanner(blueprint3d);
+  var contextMenu = new ContextMenu(blueprint3d);
   var sideMenu = new SideMenu(blueprint3d, viewerFloorplanner, modalEffects);
   var textureSelector = new TextureSelector(blueprint3d, sideMenu);        
   var cameraButtons = new CameraButtons(blueprint3d);
   mainControls(blueprint3d);
 
-  window.sideMenu = sideMenu;
-
   // This serialization format needs work
   // Load a simple rectangle room
   blueprint3d.model.loadSerialized('{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}');
-
-  const event = new CustomEvent('blueprint3d-ready', { detail: { blueprint3d } });
-  document.dispatchEvent(event);
 });
