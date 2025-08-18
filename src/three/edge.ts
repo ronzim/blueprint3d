@@ -12,9 +12,8 @@ export var Edge = function (scene, edge, controls) {
   var planes = [];
   var basePlanes = []; // always visible
   var texture = null;
-
-  var lightMap = THREE.ImageUtils.loadTexture(
-    "rooms/textures/walllightmap.png"
+  var lightMap = new THREE.TextureLoader().load(
+    'rooms/textures/walllightmap.png'
   );
   var fillerColor = 0xdddddd;
   var sideColor = 0xcccccc;
@@ -117,7 +116,7 @@ export var Edge = function (scene, edge, controls) {
     var stretch = textureData.stretch;
     var url = textureData.url;
     var scale = textureData.scale;
-    texture = THREE.ImageUtils.loadTexture(url, null, callback);
+    texture = new THREE.TextureLoader().load(url, callback);
     if (!stretch) {
       var height = wall.height;
       var width = edge.interiorDistance();
@@ -237,37 +236,28 @@ export var Edge = function (scene, edge, controls) {
     });
 
     var geometry = new THREE.ShapeGeometry(shape);
-
-    geometry.vertices.forEach(v => {
-      v.applyMatrix4(invTransform);
-    });
+    geometry.applyMatrix4(invTransform);
 
     // make UVs
     var totalDistance = Utils.distance(v1.x, v1.z, v2.x, v2.z);
     var height = wall.height;
-    geometry.faceVertexUvs[0] = [];
 
-    function vertexToUv(vertex) {
+    var uvs = geometry.attributes.uv;
+    var positions = geometry.attributes.position;
+
+    for (var i = 0; i < positions.count; i++) {
+      let vertex = new THREE.Vector3(
+        positions.getX(i),
+        positions.getY(i),
+        positions.getZ(i)
+      );
       var x =
         Utils.distance(v1.x, v1.z, vertex.x, vertex.z) / totalDistance;
       var y = vertex.y / height;
-      return new THREE.Vector2(x, y);
+      uvs.setXY(i, x, y);
     }
+    uvs.needsUpdate = true;
 
-    geometry.faces.forEach(face => {
-      var vertA = geometry.vertices[face.a];
-      var vertB = geometry.vertices[face.b];
-      var vertC = geometry.vertices[face.c];
-      geometry.faceVertexUvs[0].push([
-        vertexToUv(vertA),
-        vertexToUv(vertB),
-        vertexToUv(vertC)
-      ]);
-    });
-
-    geometry.faceVertexUvs[1] = geometry.faceVertexUvs[0];
-
-    geometry.computeFaceNormals();
     geometry.computeVertexNormals();
 
     var mesh = new THREE.Mesh(geometry, material);
@@ -276,19 +266,25 @@ export var Edge = function (scene, edge, controls) {
   }
 
   function buildSideFillter(p1, p2, height, color) {
-    var points = [
+    var vertices = [
       toVec3(p1),
       toVec3(p2),
       toVec3(p2, height),
       toVec3(p1, height)
     ];
 
-    var geometry = new THREE.Geometry();
-    points.forEach(p => {
-      geometry.vertices.push(p);
-    });
-    geometry.faces.push(new THREE.Face3(0, 1, 2));
-    geometry.faces.push(new THREE.Face3(0, 2, 3));
+    var geometry = new THREE.BufferGeometry();
+
+    const positions = new Float32Array(18);
+    positions.set(vertices[0].toArray(), 0);
+    positions.set(vertices[1].toArray(), 3);
+    positions.set(vertices[2].toArray(), 6);
+    positions.set(vertices[0].toArray(), 9);
+    positions.set(vertices[2].toArray(), 12);
+    positions.set(vertices[3].toArray(), 15);
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.computeVertexNormals();
 
     var fillerMaterial = new THREE.MeshBasicMaterial({
       color: color,

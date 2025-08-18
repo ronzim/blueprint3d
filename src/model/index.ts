@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ObjectLoader, Vector3, Mesh, MeshFaceMaterial, Geometry } from 'three';
 import * as Utils from '../core/utils';
 import { Configuration, configWallThickness, configWallHeight } from '../core/configuration';
 import { Item } from '../items/item';
@@ -644,19 +645,22 @@ export class HalfEdge {
       return new THREE.Vector3(corner.x, 0, corner.y);
     }
 
-    var v1 = transformCorner(this.interiorStart());
-    var v2 = transformCorner(this.interiorEnd());
-    var v3 = v2.clone();
+    const v1 = transformCorner(this.interiorStart());
+    const v2 = transformCorner(this.interiorEnd());
+    const v3 = v2.clone();
     v3.y = this.wall.height;
-    var v4 = v1.clone();
+    const v4 = v1.clone();
     v4.y = this.wall.height;
 
-    var geometry = new THREE.Geometry();
-    geometry.vertices = [v1, v2, v3, v4];
-
-    geometry.faces.push(new THREE.Face3(0, 1, 2));
-    geometry.faces.push(new THREE.Face3(0, 2, 3));
-    geometry.computeFaceNormals();
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+        v1.x, v1.y, v1.z,
+        v2.x, v2.y, v2.z,
+        v3.x, v3.y, v3.z,
+        v4.x, v4.y, v4.z
+    ]), 3));
+    geometry.setIndex([0, 1, 2, 0, 2, 3]);
+    geometry.computeVertexNormals();
     geometry.computeBoundingBox();
 
     this.plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial());
@@ -921,12 +925,12 @@ export class Room {
   }
 
   private generatePlane() {
-    var points = [];
+    const points: THREE.Vector2[] = [];
     this.interiorCorners.forEach(corner => {
       points.push(new THREE.Vector2(corner.x, corner.y));
     });
-    var shape = new THREE.Shape(points);
-    var geometry = new THREE.ShapeGeometry(shape);
+    const shape = new THREE.Shape(points);
+    const geometry = new THREE.ShapeGeometry(shape);
     this.floorPlane = new THREE.Mesh(
       geometry,
       new THREE.MeshBasicMaterial({
@@ -1526,7 +1530,7 @@ export class Scene {
   public needsUpdate = false;
 
   /** The Json loader. */
-  private loader: THREE.JSONLoader;
+  private loader: ObjectLoader;
 
   /** */
   private itemLoadingCallbacks = $.Callbacks();
@@ -1546,7 +1550,7 @@ export class Scene {
     this.scene = new THREE.Scene();
 
     // init item loader
-    this.loader = new THREE.JSONLoader();
+    this.loader = new ObjectLoader();
     this.loader.crossOrigin = "";
   }
 
@@ -1626,22 +1630,23 @@ export class Scene {
     itemType: number,
     fileName: string,
     metadata,
-    position: THREE.Vector3,
+    position: Vector3,
     rotation: number,
-    scale: THREE.Vector3,
+    scale: Vector3,
     fixed: boolean
   ) {
     itemType = itemType || 1;
-    var scope = this;
-    var loaderCallback = function (
-      geometry: THREE.Geometry,
-      materials: THREE.Material[]
+    const scope = this;
+    const loaderCallback = function (
+      loadedObject: Mesh
     ) {
-      var item = new (Factory.getClass(itemType))(
+      const geometry = loadedObject.geometry;
+      const material = loadedObject.material;
+      const item = new (Factory.getClass(itemType))(
         scope.model,
         metadata,
-        geometry,
-        new THREE.MeshFaceMaterial(materials),
+        geometry as any,
+        material,
         position,
         rotation,
         scale
@@ -1657,7 +1662,6 @@ export class Scene {
     this.loader.load(
       fileName,
       loaderCallback,
-      undefined // TODO_Ekki
     );
   }
 }
@@ -1692,38 +1696,38 @@ export class Model {
     this.scene = new Scene(this, textureDir);
   }
 
-  private loadSerialized(json: string) {
+  public loadSerialized(json: string) {
     // TODO: better documentation on serialization format.
     // TODO: a much better serialization format.
     this.roomLoadingCallbacks.fire();
 
-    var data = JSON.parse(json);
+    const data = JSON.parse(json);
     this.newRoom(data.floorplan, data.items);
 
     this.roomLoadedCallbacks.fire();
   }
 
-  private exportSerialized(): string {
-    var items_arr = [];
-    var objects = this.scene.getItems();
-    for (var i = 0; i < objects.length; i++) {
-      var object = objects[i];
+  public exportSerialized(): string {
+    const items_arr = [];
+    const objects = this.scene.getItems();
+    for (let i = 0; i < objects.length; i++) {
+      const object = objects[i];
       items_arr[i] = {
         item_name: object.metadata.itemName,
         item_type: object.metadata.itemType,
         model_url: object.metadata.modelUrl,
-        xpos: object.position.x,
-        ypos: object.position.y,
-        zpos: object.position.z,
-        rotation: object.rotation.y,
-        scale_x: object.scale.x,
-        scale_y: object.scale.y,
-        scale_z: object.scale.z,
-        fixed: object.fixed
+        xpos: (object as any).position.x,
+        ypos: (object as any).position.y,
+        zpos: (object as any).position.z,
+        rotation: (object as any).rotation.y,
+        scale_x: (object as any).scale.x,
+        scale_y: (object as any).scale.y,
+        scale_z: (object as any).scale.z,
+        fixed: (object as any).fixed
       };
     }
 
-    var room = {
+    const room = {
       floorplan: this.floorplan.saveFloorplan(),
       items: items_arr
     };
@@ -1731,18 +1735,18 @@ export class Model {
     return JSON.stringify(room);
   }
 
-  private newRoom(floorplan: string, items) {
+  public newRoom(floorplan: string, items) {
     this.scene.clearItems();
     this.floorplan.loadFloorplan(floorplan);
     items.forEach(item => {
-      var position = new THREE.Vector3(item.xpos, item.ypos, item.zpos);
-      var metadata = {
+      const position = new Vector3(item.xpos, item.ypos, item.zpos);
+      const metadata = {
         itemName: item.item_name,
         resizable: item.resizable,
         itemType: item.item_type,
         modelUrl: item.model_url
       };
-      var scale = new THREE.Vector3(item.scale_x, item.scale_y, item.scale_z);
+      const scale = new Vector3(item.scale_x, item.scale_y, item.scale_z);
       this.scene.addItem(
         item.item_type,
         item.model_url,

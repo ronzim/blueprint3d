@@ -16,18 +16,18 @@ export var HUD = function (three) {
   var tolerance = 10;
   var height = 5;
   var distance = 20;
-  var color = "#ffffff";
-  var hoverColor = "#f1c40f";
+  var color = '#ffffff';
+  var hoverColor = '#f1c40f';
 
   var activeObject = null;
 
   this.getScene = function () {
     return scene;
-  }
+  };
 
   this.getObject = function () {
     return activeObject;
-  }
+  };
 
   function init() {
     three.itemSelectedCallbacks.add(itemSelected);
@@ -60,24 +60,28 @@ export var HUD = function (three) {
   this.setRotating = function (isRotating) {
     rotating = isRotating;
     setColor();
-  }
+  };
 
   this.setMouseover = function (isMousedOver) {
     mouseover = isMousedOver;
     setColor();
-  }
+  };
 
   function setColor() {
     if (activeObject) {
-      activeObject.children.forEach((obj) => {
-        obj.material.color.set(getColor());
+      activeObject.children.forEach(obj => {
+        if ((obj as THREE.Mesh).material) {
+          ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(
+            getColor()
+          );
+        }
       });
     }
     three.needsUpdate();
   }
 
   function getColor() {
-    return (mouseover || rotating) ? hoverColor : color;
+    return mouseover || rotating ? hoverColor : color;
   }
 
   this.update = function () {
@@ -86,22 +90,21 @@ export var HUD = function (three) {
       activeObject.position.x = selectedItem.position.x;
       activeObject.position.z = selectedItem.position.z;
     }
-  }
+  };
 
   function makeLineGeometry(item) {
-    var geometry = new THREE.Geometry();
-
-    geometry.vertices.push(
-      new THREE.Vector3(0, 0, 0),
-      rotateVector(item)
-    );
-
+    var geometry = new THREE.BufferGeometry();
+    const vertices = new Float32Array([0, 0, 0, ...rotateVector(item).toArray()]);
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
     return geometry;
   }
 
   function rotateVector(item) {
-    var vec = new THREE.Vector3(0, 0,
-      Math.max(item.halfSize.x, item.halfSize.z) + 1.4 + distance);
+    var vec = new THREE.Vector3(
+      0,
+      0,
+      Math.max(item.halfSize.x, item.halfSize.z) + 1.4 + distance
+    );
     return vec;
   }
 
@@ -139,8 +142,8 @@ export var HUD = function (three) {
     var object = new THREE.Object3D();
     var line = new THREE.Line(
       makeLineGeometry(item),
-      makeLineMaterial(scope.rotating),
-      THREE.LinePieces);
+      makeLineMaterial(scope.rotating)
+    );
 
     var cone = makeCone(item);
     var sphere = makeSphere(item);
@@ -158,4 +161,4 @@ export var HUD = function (three) {
   }
 
   init();
-}
+};
