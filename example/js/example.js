@@ -4,7 +4,7 @@ import { Blueprint3d } from "../../src/blueprint3d";
  * Initialize!
  */
 
-$(document).ready(function() {
+window.addEventListener('DOMContentLoaded', () => {
 
   // main setup
   var opts = {
@@ -24,19 +24,19 @@ $(document).ready(function() {
     }
 
     const views = {
-      'FLOORPLAN': $('#floorplanner'),
-      'DESIGN': $('#viewer'),
-      'SHOP': $('#add-items')
+      'FLOORPLAN': document.querySelector('#floorplanner'),
+      'DESIGN': document.querySelector('#viewer'),
+      'SHOP': document.querySelector('#add-items')
     };
 
     if (currentTab) {
-      views[currentTab].hide();
+      views[currentTab].style.display = 'none';
     }
-    views[newTab].show();
+    views[newTab].style.display = 'block';
 
     if (newTab === 'FLOORPLAN') {
       blueprint3d.floorplanner.reset();
-      $(window).resize();
+      window.dispatchEvent(new Event('resize'));
     }
 
     if (newTab === 'DESIGN') {
@@ -53,9 +53,7 @@ $(document).ready(function() {
   const event = new CustomEvent('blueprint3d-ready', { detail: { blueprint3d } });
   document.dispatchEvent(event);
 
-  window.addEventListener('DOMContentLoaded', () => {
-    handleTabChange('DESIGN');
-  });
+  handleTabChange('DESIGN');
 
   // This serialization format needs work
   // Load a simple rectangle room

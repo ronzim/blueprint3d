@@ -27,6 +27,7 @@ export default {
         itemType: parseInt(item.type)
       };
       this.$blueprint3d.model.scene.addItem(parseInt(item.type), item.model, metadata);
+      this.$emit('item-added');
     },
   },
   data() {
