@@ -84,76 +84,6 @@ var CameraButtons = function(blueprint3d) {
 }
 
 /*
- * Context menu for selected item
- */ 
-
-var ContextMenu = function(blueprint3d) {
-
-  var scope = this;
-  var selectedItem;
-  var three = blueprint3d.three;
-
-  function init() {
-    $("#context-menu-delete").click(function(event) {
-        selectedItem.remove();
-    });
-
-    three.itemSelectedCallbacks.add(itemSelected);
-    three.itemUnselectedCallbacks.add(itemUnselected);
-
-    initResize();
-
-    $("#fixed").click(function() {
-        var checked = $(this).prop('checked');
-        selectedItem.setFixed(checked);
-    });
-  }
-
-  function cmToIn(cm) {
-    return cm / 2.54;
-  }
-
-  function inToCm(inches) {
-    return inches * 2.54;
-  }
-
-  function itemSelected(item) {
-    selectedItem = item;
-
-    $("#context-menu-name").text(item.metadata.itemName);
-
-    $("#item-width").val(cmToIn(selectedItem.getWidth()).toFixed(0));
-    $("#item-height").val(cmToIn(selectedItem.getHeight()).toFixed(0));
-    $("#item-depth").val(cmToIn(selectedItem.getDepth()).toFixed(0));
-
-    $("#context-menu").show();
-
-    $("#fixed").prop('checked', item.fixed);
-  }
-
-  function resize() {
-    selectedItem.resize(
-      inToCm($("#item-height").val()),
-      inToCm($("#item-width").val()),
-      inToCm($("#item-depth").val())
-    );
-  }
-
-  function initResize() {
-    $("#item-height").change(resize);
-    $("#item-width").change(resize);
-    $("#item-depth").change(resize);
-  }
-
-  function itemUnselected() {
-    selectedItem = null;
-    $("#context-menu").hide();
-  }
-
-  init();
-}
-
-/*
  * Loading modal for items
  */
 
@@ -500,10 +430,10 @@ $(document).ready(function() {
     widget: false
   }
   var blueprint3d = new Blueprint3d(opts);
+  window.blueprint3d = blueprint3d;
 
   var modalEffects = new ModalEffects(blueprint3d);
   var viewerFloorplanner = new ViewerFloorplanner(blueprint3d);
-  var contextMenu = new ContextMenu(blueprint3d);
   var sideMenu = new SideMenu(blueprint3d, viewerFloorplanner, modalEffects);
   var textureSelector = new TextureSelector(blueprint3d, sideMenu);        
   var cameraButtons = new CameraButtons(blueprint3d);
