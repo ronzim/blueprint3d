@@ -67,8 +67,8 @@ export class Main {
       preserveDrawingBuffer: true, // required to support .toDataURL()
     });
     this.renderer.autoClear = false;
-    (this.renderer as any).shadowMap.enabled = true;
-    (this.renderer as any).shadowMap.type = THREE.PCFSoftShadowMap;
+    (this.renderer as any).shadowMapEnabled = true;
+    (this.renderer as any).shadowMapType = THREE.PCFSoftShadowMap;
 
     const skybox = new Skybox(this.scene);
 
