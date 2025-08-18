@@ -31,7 +31,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test:e2e": "jest tests/e2e/console.spec.js"
+    "test:e2e": "jest tests/e2e"
   },
   "author": ""
 }

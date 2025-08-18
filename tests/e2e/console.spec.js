@@ -1,17 +1,23 @@
 const puppeteer = require('puppeteer');
 
+jest.setTimeout(30000);
+
 describe('E2E Console Errors', () => {
   let browser;
   let page;
   const errors = [];
 
   beforeAll(async () => {
-    browser = await puppeteer.launch();
+    browser = await puppeteer.launch({ headless: 'new' });
     page = await browser.newPage();
 
     page.on('console', msg => {
+      const location = msg.location();
+      if (location && location.url.includes('favicon.ico')) {
+        return;
+      }
       const text = msg.text();
-      if (msg.type() === 'error' && !text.includes('favicon.ico') && !text.includes('runtime.lastError')) {
+      if (msg.type() === 'error' && !text.includes('runtime.lastError')) {
         errors.push(text);
       }
     });
@@ -24,8 +30,8 @@ describe('E2E Console Errors', () => {
   });
 
   test('should not have console errors', async () => {
-    await page.goto('http://localhost:5173/example/index.html');
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    await page.goto('http://localhost:5173/example/index.html', { waitUntil: 'networkidle2' });
+    await page.waitForSelector('#floorplanner-canvas');
     expect(errors).toEqual([]);
-  }, 60000);
+  });
 });

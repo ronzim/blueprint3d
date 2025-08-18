@@ -244,13 +244,11 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
     blueprint3d.three.updateWindowSize();
     handleWindowResize();
 
-    initItems();
-
-    setCurrentState(scope.states.DEFAULT);
+    scope.setCurrentState(scope.states.DEFAULT);
   }
 
   function floorplanUpdate() {
-    setCurrentState(scope.states.DEFAULT);
+    scope.setCurrentState(scope.states.DEFAULT);
   }
 
   function tabClicked(tab) {
@@ -262,14 +260,14 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
       for (var key in scope.states) {
         var state = scope.states[key];
         if (state.tab == tab) {
-          setCurrentState(state);
+          scope.setCurrentState(state);
           break;
         }
       }
     }
   }
   
-  function setCurrentState(newState) {
+  scope.setCurrentState = function(newState) {
 
     if (currentState == newState) {
       return;
@@ -323,23 +321,6 @@ var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
     $("#add-items").height(window.innerHeight);
 
   };
-
-  // TODO: this doesn't really belong here
-  function initItems() {
-    $("#add-items").find(".add-item").mousedown(function(e) {
-      var modelUrl = $(this).attr("model-url");
-      var itemType = parseInt($(this).attr("model-type"));
-      var metadata = {
-        itemName: $(this).attr("model-name"),
-        resizable: true,
-        modelUrl: modelUrl,
-        itemType: itemType
-      }
-
-      blueprint3d.model.scene.addItem(itemType, modelUrl, metadata);
-      setCurrentState(scope.states.DEFAULT);
-    });
-  }
 
   init();
 
@@ -528,10 +509,12 @@ $(document).ready(function() {
   var cameraButtons = new CameraButtons(blueprint3d);
   mainControls(blueprint3d);
 
+  window.sideMenu = sideMenu;
+
   // This serialization format needs work
   // Load a simple rectangle room
   blueprint3d.model.loadSerialized('{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}');
 
-  const event = new CustomEvent('blueprint3d-ready', { detail: { blueprint3d, sideMenu } });
+  const event = new CustomEvent('blueprint3d-ready', { detail: { blueprint3d } });
   document.dispatchEvent(event);
 });
