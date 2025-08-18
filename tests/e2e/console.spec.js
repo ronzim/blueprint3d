@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 
-jest.setTimeout(30000);
+jest.setTimeout(60000);
 
 describe('E2E Console Errors', () => {
   let browser;

@@ -127,165 +127,21 @@ var ModalEffects = function(blueprint3d) {
  * Side menu
  */
 
-var SideMenu = function(blueprint3d, floorplanControls, modalEffects) {
-  var blueprint3d = blueprint3d;
-  var floorplanControls = floorplanControls;
-  var modalEffects = modalEffects;
-
-  var ACTIVE_CLASS = "active";
-
-  var tabs = {
-    "FLOORPLAN" : $("#floorplan_tab"),
-    "SHOP" : $("#items_tab"),
-    "DESIGN" : $("#design_tab")
-  }
-
-  var scope = this;
-  this.stateChangeCallbacks = $.Callbacks();
-
-  this.states = {
-    "DEFAULT" : {
-      "div" : $("#viewer"),
-      "tab" : tabs.DESIGN
-    },
-    "FLOORPLAN" : {
-      "div" : $("#floorplanner"),
-      "tab" : tabs.FLOORPLAN
-    },
-    "SHOP" : {
-      "div" : $("#add-items"),
-      "tab" : tabs.SHOP
-    }
-  }
-
-  // sidebar state
-  var currentState = scope.states.FLOORPLAN;
-
-  function init() {
-    for (var tab in tabs) {
-      var elem = tabs[tab];
-      elem.click(tabClicked(elem));
-    }
-
-    $("#update-floorplan").click(floorplanUpdate);
-
-    initLeftMenu();
-
-    blueprint3d.three.updateWindowSize();
-    handleWindowResize();
-
-    initItems();
-
-    setCurrentState(scope.states.DEFAULT);
-  }
-
-  function floorplanUpdate() {
-    setCurrentState(scope.states.DEFAULT);
-  }
-
-  function tabClicked(tab) {
-    return function() {
-      // Stop three from spinning
-      blueprint3d.three.stopSpin();
-
-      // Selected a new tab
-      for (var key in scope.states) {
-        var state = scope.states[key];
-        if (state.tab == tab) {
-          setCurrentState(state);
-          break;
-        }
-      }
-    }
-  }
-  
-  function setCurrentState(newState) {
-
-    if (currentState == newState) {
-      return;
-    }
-
-    // show the right tab as active
-    if (currentState.tab !== newState.tab) {
-      if (currentState.tab != null) {
-        currentState.tab.removeClass(ACTIVE_CLASS);          
-      }
-      if (newState.tab != null) {
-        newState.tab.addClass(ACTIVE_CLASS);
-      }
-    }
-
-    // set item unselected
-    blueprint3d.three.getController().setSelectedObject(null);
-
-    // show and hide the right divs
-    currentState.div.hide()
-    newState.div.show()
-
-    // custom actions
-    if (newState == scope.states.FLOORPLAN) {
-      floorplanControls.updateFloorplanView();
-      floorplanControls.handleWindowResize();
-    } 
-
-    if (currentState == scope.states.FLOORPLAN) {
-      blueprint3d.model.floorplan.update();
-    }
-
-    if (newState == scope.states.DEFAULT) {
-      blueprint3d.three.updateWindowSize();
-    }
- 
-    // set new state
-    handleWindowResize();    
-    currentState = newState;
-
-    scope.stateChangeCallbacks.fire(newState);
-  }
-
-  function initLeftMenu() {
-    $( window ).resize( handleWindowResize );
-    handleWindowResize();
-  }
-
-  function handleWindowResize() {
-    $(".sidebar").height(window.innerHeight);
-    $("#add-items").height(window.innerHeight);
-
-  };
-
-  // TODO: this doesn't really belong here
-  function initItems() {
-    $("#add-items").find(".add-item").mousedown(function(e) {
-      var modelUrl = $(this).attr("model-url");
-      var itemType = parseInt($(this).attr("model-type"));
-      var metadata = {
-        itemName: $(this).attr("model-name"),
-        resizable: true,
-        modelUrl: modelUrl,
-        itemType: itemType
-      }
-
-      blueprint3d.model.scene.addItem(itemType, modelUrl, metadata);
-      setCurrentState(scope.states.DEFAULT);
-    });
-  }
-
-  init();
-
-}
-
 /*
  * Change floor and wall textures
  */
 
-var TextureSelector = function (blueprint3d, sideMenu) {
+var TextureSelector = function (blueprint3d) {
 
   var scope = this;
   var three = blueprint3d.three;
-  var isAdmin = isAdmin;
 
   var currentTarget = null;
+
+  this.reset = function() {
+    $("#wallTextures").hide();
+    $("#floorTexturesDiv").hide();
+  }
 
   function initTextureSelectors() {
     $(".texture-select-thumbnail").click(function(e) {
@@ -301,9 +157,8 @@ var TextureSelector = function (blueprint3d, sideMenu) {
   function init() {
     three.wallClicked.add(wallClicked);
     three.floorClicked.add(floorClicked);
-    three.itemSelectedCallbacks.add(reset);
-    three.nothingClicked.add(reset);
-    sideMenu.stateChangeCallbacks.add(reset);
+    three.itemSelectedCallbacks.add(scope.reset);
+    three.nothingClicked.add(scope.reset);
     initTextureSelectors();
   }
 
@@ -317,11 +172,6 @@ var TextureSelector = function (blueprint3d, sideMenu) {
     currentTarget = room;
     $("#wallTextures").hide();  
     $("#floorTexturesDiv").show();  
-  }
-
-  function reset() {
-    $("#wallTextures").hide();  
-    $("#floorTexturesDiv").hide();  
   }
 
   init();
@@ -452,13 +302,54 @@ $(document).ready(function() {
 
   var modalEffects = new ModalEffects(blueprint3d);
   var viewerFloorplanner = new ViewerFloorplanner(blueprint3d);
-  var sideMenu = new SideMenu(blueprint3d, viewerFloorplanner, modalEffects);
-  var textureSelector = new TextureSelector(blueprint3d, sideMenu);        
+  var textureSelector = new TextureSelector(blueprint3d);
   var cameraButtons = new CameraButtons(blueprint3d);
   mainControls(blueprint3d);
 
+  let currentTab = null;
+
+  function handleTabChange(newTab) {
+    if (currentTab === newTab) {
+      return;
+    }
+
+    const views = {
+      'FLOORPLAN': $('#floorplanner'),
+      'DESIGN': $('#viewer'),
+      'SHOP': $('#add-items')
+    };
+
+    if (currentTab) {
+      views[currentTab].hide();
+    }
+    views[newTab].show();
+
+    // custom actions
+    if (newTab === 'FLOORPLAN') {
+      viewerFloorplanner.updateFloorplanView();
+      viewerFloorplanner.handleWindowResize();
+    }
+
+    if (currentTab === 'FLOORPLAN') {
+      blueprint3d.model.floorplan.update();
+    }
+
+    if (newTab === 'DESIGN') {
+      blueprint3d.three.updateWindowSize();
+    }
+
+    textureSelector.reset();
+    currentTab = newTab;
+  }
+
+  document.addEventListener('app-tab-changed', (e) => {
+    handleTabChange(e.detail.tabName);
+  });
+
   const event = new CustomEvent('blueprint3d-ready', { detail: { blueprint3d } });
   document.dispatchEvent(event);
+
+  handleTabChange('DESIGN');
 
   // This serialization format needs work
   // Load a simple rectangle room
