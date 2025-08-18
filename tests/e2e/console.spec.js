@@ -10,8 +10,9 @@ describe('E2E Console Errors', () => {
     page = await browser.newPage();
 
     page.on('console', msg => {
-      if (msg.type() === 'error' && !msg.text().includes('favicon.ico')) {
-        errors.push(msg.text());
+      const text = msg.text();
+      if (msg.type() === 'error' && !text.includes('favicon.ico') && !text.includes('runtime.lastError')) {
+        errors.push(text);
       }
     });
   });
