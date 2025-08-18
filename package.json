@@ -5,6 +5,7 @@
   "license": "(MIT OR Apache-2.0)",
   "main": "main.js",
   "dependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
     "bootstrap": "^3.3.1",
     "bootstrap-tour": "^0.10.1",
     "inherits": "^2.0.1",
@@ -13,10 +14,10 @@
     "segseg": "^0.2.1",
     "three": "^0.69.0",
     "underscore": "^1.7.0",
-    "vec2": "^1.6.0"
+    "vec2": "^1.6.0",
+    "vue": "^3.5.18"
   },
   "devDependencies": {
-    "browserify": "^8.0.2",
     "jest": "^30.0.5",
     "puppeteer": "^24.16.2",
     "typescript": "^5.0.0",
@@ -27,9 +28,9 @@
     "url": "https://github.com/Ekki/blueprint3d.git"
   },
   "scripts": {
-    "build": "browserify src/blueprint3d.js > example/js/blueprint3d.js --verbose",
     "dev": "vite",
-    "test": "npm run dev & npm run test:e2e",
+    "build": "vite build",
+    "preview": "vite preview",
     "test:e2e": "jest tests/e2e/console.spec.js"
   },
   "author": ""
