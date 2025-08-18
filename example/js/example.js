@@ -2,88 +2,6 @@ import { Blueprint3d } from "../../src/blueprint3d";
 import { floorplannerModes } from "../../src/floorplanner/floorplanner";
 
 /*
- * Camera Buttons
- */
-
-var CameraButtons = function(blueprint3d) {
-
-  var orbitControls = blueprint3d.three.controls;
-  var three = blueprint3d.three;
-
-  var panSpeed = 30;
-  var directions = {
-    UP: 1,
-    DOWN: 2,
-    LEFT: 3,
-    RIGHT: 4
-  }
-
-  function init() {
-    // Camera controls
-    $("#zoom-in").click(zoomIn);
-    $("#zoom-out").click(zoomOut);  
-    $("#zoom-in").dblclick(preventDefault);
-    $("#zoom-out").dblclick(preventDefault);
-
-    $("#reset-view").click(three.centerCamera)
-
-    $("#move-left").click(function(){
-      pan(directions.LEFT)
-    })
-    $("#move-right").click(function(){
-      pan(directions.RIGHT)
-    })
-    $("#move-up").click(function(){
-      pan(directions.UP)
-    })
-    $("#move-down").click(function(){
-      pan(directions.DOWN)
-    })
-
-    $("#move-left").dblclick(preventDefault);
-    $("#move-right").dblclick(preventDefault);
-    $("#move-up").dblclick(preventDefault);
-    $("#move-down").dblclick(preventDefault);
-  }
-
-  function preventDefault(e) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  function pan(direction) {
-    switch (direction) {
-      case directions.UP:
-        orbitControls.panXY(0, panSpeed);
-        break;
-      case directions.DOWN:
-        orbitControls.panXY(0, -panSpeed);
-        break;
-      case directions.LEFT:
-        orbitControls.panXY(panSpeed, 0);
-        break;
-      case directions.RIGHT:
-        orbitControls.panXY(-panSpeed, 0);
-        break;
-    }
-  }
-
-  function zoomIn(e) {
-    e.preventDefault();
-    orbitControls.dollyIn(1.1);
-    orbitControls.update();
-  }
-
-  function zoomOut(e) {
-    e.preventDefault;
-    orbitControls.dollyOut(1.1);
-    orbitControls.update();
-  }
-
-  init();
-}
-
-/*
  * Loading modal for items
  */
 
@@ -247,43 +165,6 @@ var ViewerFloorplanner = function(blueprint3d) {
   init();
 }; 
 
-var mainControls = function(blueprint3d) {
-  var blueprint3d = blueprint3d;
-
-  function newDesign() {
-    blueprint3d.model.loadSerialized('{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":true,"scale":0}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}');
-  }
-
-  function loadDesign() {
-    files = $("#loadFile").get(0).files;
-    var reader  = new FileReader();
-    reader.onload = function(event) {
-        var data = event.target.result;
-        blueprint3d.model.loadSerialized(data);
-    }
-    reader.readAsText(files[0]);
-  }
-
-  function saveDesign() {
-    var data = blueprint3d.model.exportSerialized();
-    var a = window.document.createElement('a');
-    var blob = new Blob([data], {type : 'text'});
-    a.href = window.URL.createObjectURL(blob);
-    a.download = 'design.blueprint3d';
-    document.body.appendChild(a)
-    a.click();
-    document.body.removeChild(a)
-  }
-
-  function init() {
-    $("#new").click(newDesign);
-    $("#loadFile").change(loadDesign);
-    $("#saveFile").click(saveDesign);
-  }
-
-  init();
-}
-
 /*
  * Initialize!
  */
@@ -303,8 +184,6 @@ $(document).ready(function() {
   var modalEffects = new ModalEffects(blueprint3d);
   var viewerFloorplanner = new ViewerFloorplanner(blueprint3d);
   var textureSelector = new TextureSelector(blueprint3d);
-  var cameraButtons = new CameraButtons(blueprint3d);
-  mainControls(blueprint3d);
 
   document.addEventListener('app-tab-changed', (e) => {
     handleTabChange(e.detail.tabName);
