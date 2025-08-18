@@ -1,3 +1,5 @@
+import { Blueprint3d } from "../../src/blueprint3d";
+import { floorplannerModes } from "../../src/floorplanner/floorplanner";
 
 /*
  * Camera Buttons
@@ -424,15 +426,15 @@ var ViewerFloorplanner = function(blueprint3d) {
       $(draw).removeClass(activeStlye);
       $(remove).removeClass(activeStlye);
       $(move).removeClass(activeStlye);
-      if (mode == BP3D.Floorplanner.floorplannerModes.MOVE) {
+      if (mode == floorplannerModes.MOVE) {
           $(move).addClass(activeStlye);
-      } else if (mode == BP3D.Floorplanner.floorplannerModes.DRAW) {
+      } else if (mode == floorplannerModes.DRAW) {
           $(draw).addClass(activeStlye);
-      } else if (mode == BP3D.Floorplanner.floorplannerModes.DELETE) {
+      } else if (mode == floorplannerModes.DELETE) {
           $(remove).addClass(activeStlye);
       }
 
-      if (mode == BP3D.Floorplanner.floorplannerModes.DRAW) {
+      if (mode == floorplannerModes.DRAW) {
         $("#draw-walls-hint").show();
         scope.handleWindowResize();
       } else {
@@ -441,15 +443,15 @@ var ViewerFloorplanner = function(blueprint3d) {
     });
 
     $(move).click(function(){
-      scope.floorplanner.setMode(BP3D.Floorplanner.floorplannerModes.MOVE);
+      scope.floorplanner.setMode(floorplannerModes.MOVE);
     });
 
     $(draw).click(function(){
-      scope.floorplanner.setMode(BP3D.Floorplanner.floorplannerModes.DRAW);
+      scope.floorplanner.setMode(floorplannerModes.DRAW);
     });
 
     $(remove).click(function(){
-      scope.floorplanner.setMode(BP3D.Floorplanner.floorplannerModes.DELETE);
+      scope.floorplanner.setMode(floorplannerModes.DELETE);
     });
   }
 
@@ -516,7 +518,7 @@ $(document).ready(function() {
     textureDir: "models/textures/",
     widget: false
   }
-  var blueprint3d = new BP3D.Blueprint3d(opts);
+  var blueprint3d = new Blueprint3d(opts);
 
   var modalEffects = new ModalEffects(blueprint3d);
   var viewerFloorplanner = new ViewerFloorplanner(blueprint3d);
