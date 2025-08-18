@@ -306,6 +306,10 @@ $(document).ready(function() {
   var cameraButtons = new CameraButtons(blueprint3d);
   mainControls(blueprint3d);
 
+  document.addEventListener('app-tab-changed', (e) => {
+    handleTabChange(e.detail.tabName);
+  });
+
   let currentTab = null;
 
   function handleTabChange(newTab) {
