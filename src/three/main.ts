@@ -29,11 +29,11 @@ export class Main {
   public elementHeight: number;
   public elementWidth: number;
 
-  public itemSelectedCallbacks: ((item: any) => void)[] = [];
-  public itemUnselectedCallbacks: (() => void)[] = [];
-  public wallClicked: ((wall: any) => void)[] = [];
-  public floorClicked: ((floor: any) => void)[] = [];
-  public nothingClicked: (() => void)[] = [];
+  public itemSelectedCallbacks = $.Callbacks();
+  public itemUnselectedCallbacks = $.Callbacks();
+  public wallClicked = $.Callbacks();
+  public floorClicked = $.Callbacks();
+  public nothingClicked = $.Callbacks();
 
   constructor(model: Model, element: string, canvasElement: string, opts: any) {
     this.model = model;
