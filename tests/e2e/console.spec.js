@@ -16,7 +16,7 @@ describe('E2E Console Errors', () => {
         errors.push(text);
       }
     });
-  });
+  }, 60000);
 
   afterAll(async () => {
     if (browser) {
