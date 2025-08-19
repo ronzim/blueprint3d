@@ -652,7 +652,7 @@ export class HalfEdge {
     v4.y = this.wall.height;
 
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array([
         v1.x, v1.y, v1.z,
         v2.x, v2.y, v2.z,
         v3.x, v3.y, v3.z,
