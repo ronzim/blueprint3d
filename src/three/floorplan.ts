@@ -39,5 +39,6 @@ export var Floorplan = function (scene, floorplan, controls) {
         scene, edge, scope.controls);
       scope.edges.push(threeEdge);
     });
+    scope.scene.needsUpdate = true;
   }
 }
