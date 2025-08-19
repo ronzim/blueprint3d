@@ -52,16 +52,16 @@ export abstract class WallItem extends Item {
    */
   public closestWallEdge(): HalfEdge {
 
-    const wallEdges = this.model.floorplan.wallEdges();
+    var wallEdges = this.model.floorplan.wallEdges();
 
-    let wallEdge = null;
-    let minDistance = null;
+    var wallEdge = null;
+    var minDistance = null;
 
-    const itemX = (this as any).position.x;
-    const itemZ = (this as any).position.z;
+    var itemX = this.position.x;
+    var itemZ = this.position.z;
 
     wallEdges.forEach((edge: HalfEdge) => {
-      const distance = edge.distanceTo(itemX, itemZ);
+      var distance = edge.distanceTo(itemX, itemZ);
       if (minDistance === null || distance < minDistance) {
         minDistance = distance;
         wallEdge = edge;
@@ -93,20 +93,20 @@ export abstract class WallItem extends Item {
     } else {
       this.backVisible = visible;
     }
-    (this as any).visible = (this.frontVisible || this.backVisible);
+    this.visible = (this.frontVisible || this.backVisible);
   }
 
   /** */
   private updateSize() {
-    this.wallOffsetScalar = ((this as any).geometry.boundingBox.max.z - (this as any).geometry.boundingBox.min.z) * (this as any).scale.z / 2.0;
-    this.sizeX = ((this as any).geometry.boundingBox.max.x - (this as any).geometry.boundingBox.min.x) * (this as any).scale.x;
-    this.sizeY = ((this as any).geometry.boundingBox.max.y - (this as any).geometry.boundingBox.min.y) * (this as any).scale.y;
+    this.wallOffsetScalar = (this.geometry.boundingBox.max.z - this.geometry.boundingBox.min.z) * this.scale.z / 2.0;
+    this.sizeX = (this.geometry.boundingBox.max.x - this.geometry.boundingBox.min.x) * this.scale.x;
+    this.sizeY = (this.geometry.boundingBox.max.y - this.geometry.boundingBox.min.y) * this.scale.y;
   }
 
   /** */
   public resized() {
     if (this.boundToFloor) {
-      (this as any).position.y = 0.5 * ((this as any).geometry.boundingBox.max.y - (this as any).geometry.boundingBox.min.y) * (this as any).scale.y + 0.01;
+      this.position.y = 0.5 * (this.geometry.boundingBox.max.y - this.geometry.boundingBox.min.y) * this.scale.y + 0.01;
     }
 
     this.updateSize();
@@ -115,19 +115,19 @@ export abstract class WallItem extends Item {
 
   /** */
   public placeInRoom() {
-    const closestWallEdge = this.closestWallEdge();
+    var closestWallEdge = this.closestWallEdge();
     this.changeWallEdge(closestWallEdge);
     this.updateSize();
 
     if (!this.position_set) {
       // position not set
-      const center = closestWallEdge.interiorCenter();
-      const newPos = new THREE.Vector3(
+      var center = closestWallEdge.interiorCenter();
+      var newPos = new THREE.Vector3(
         center.x,
         closestWallEdge.wall.height / 2.0,
         center.y);
       this.boundMove(newPos);
-      (this as any).position.copy(newPos);
+      this.position.copy(newPos);
       this.redrawWall();
     }
   };
@@ -136,7 +136,7 @@ export abstract class WallItem extends Item {
   public moveToPosition(vec3, intersection) {
     this.changeWallEdge(intersection.object.edge);
     this.boundMove(vec3);
-    (this as any).position.copy(vec3);
+    this.position.copy(vec3);
     this.redrawWall();
   }
 
@@ -171,7 +171,7 @@ export abstract class WallItem extends Item {
     const angle = Utils.angle(
       this.refVec.x, this.refVec.y,
       normal2.x, normal2.y);
-    (this as any).rotation.y = angle;
+    this.rotation.y = angle;
 
     // update currentWall
     this.currentWallEdge = wallEdge;
@@ -191,8 +191,8 @@ export abstract class WallItem extends Item {
 
   /** takes the move vec3, and makes sure object stays bounded on plane */
   private boundMove(vec3) {
-    const tolerance = 1;
-    const edge = this.currentWallEdge;
+    var tolerance = 1;
+    var edge = this.currentWallEdge;
     vec3.applyMatrix4(edge.interiorTransform);
 
     if (vec3.x < this.sizeX / 2.0 + tolerance) {
@@ -202,7 +202,7 @@ export abstract class WallItem extends Item {
     }
 
     if (this.boundToFloor) {
-      vec3.y = 0.5 * ((this as any).geometry.boundingBox.max.y - (this as any).geometry.boundingBox.min.y) * (this as any).scale.y + 0.01;
+      vec3.y = 0.5 * (this.geometry.boundingBox.max.y - this.geometry.boundingBox.min.y) * this.scale.y + 0.01;
     } else {
       if (vec3.y < this.sizeY / 2.0 + tolerance) {
         vec3.y = this.sizeY / 2.0 + tolerance;

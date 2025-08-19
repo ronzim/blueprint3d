@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { ObjectLoader, Vector3, Mesh, MeshFaceMaterial, Geometry } from 'three';
 import * as Utils from '../core/utils';
 import { Configuration, configWallThickness, configWallHeight } from '../core/configuration';
 import { Item } from '../items/item';
@@ -925,12 +924,12 @@ export class Room {
   }
 
   private generatePlane() {
-    const points: THREE.Vector2[] = [];
+    var points = [];
     this.interiorCorners.forEach(corner => {
       points.push(new THREE.Vector2(corner.x, corner.y));
     });
-    const shape = new THREE.Shape(points);
-    const geometry = new THREE.ShapeGeometry(shape);
+    var shape = new THREE.Shape(points);
+    var geometry = new THREE.ShapeGeometry(shape);
     this.floorPlane = new THREE.Mesh(
       geometry,
       new THREE.MeshBasicMaterial({
@@ -1530,7 +1529,7 @@ export class Scene {
   public needsUpdate = false;
 
   /** The Json loader. */
-  private loader: ObjectLoader;
+  private loader: THREE.ObjectLoader;
 
   /** */
   private itemLoadingCallbacks = $.Callbacks();
@@ -1550,7 +1549,7 @@ export class Scene {
     this.scene = new THREE.Scene();
 
     // init item loader
-    this.loader = new ObjectLoader();
+    this.loader = new THREE.ObjectLoader();
     this.loader.crossOrigin = "";
   }
 
@@ -1630,22 +1629,22 @@ export class Scene {
     itemType: number,
     fileName: string,
     metadata,
-    position: Vector3,
+    position: THREE.Vector3,
     rotation: number,
-    scale: Vector3,
+    scale: THREE.Vector3,
     fixed: boolean
   ) {
     itemType = itemType || 1;
     const scope = this;
     const loaderCallback = function (
-      loadedObject: Mesh
+      loadedObject: THREE.Mesh
     ) {
       const geometry = loadedObject.geometry;
       const material = loadedObject.material;
       const item = new (Factory.getClass(itemType))(
         scope.model,
         metadata,
-        geometry as any,
+        geometry as THREE.BufferGeometry,
         material,
         position,
         rotation,
@@ -1696,38 +1695,38 @@ export class Model {
     this.scene = new Scene(this, textureDir);
   }
 
-  public loadSerialized(json: string) {
+  private loadSerialized(json: string) {
     // TODO: better documentation on serialization format.
     // TODO: a much better serialization format.
     this.roomLoadingCallbacks.fire();
 
-    const data = JSON.parse(json);
+    var data = JSON.parse(json);
     this.newRoom(data.floorplan, data.items);
 
     this.roomLoadedCallbacks.fire();
   }
 
-  public exportSerialized(): string {
-    const items_arr = [];
-    const objects = this.scene.getItems();
-    for (let i = 0; i < objects.length; i++) {
-      const object = objects[i];
+  private exportSerialized(): string {
+    var items_arr = [];
+    var objects = this.scene.getItems();
+    for (var i = 0; i < objects.length; i++) {
+      var object = objects[i];
       items_arr[i] = {
         item_name: object.metadata.itemName,
         item_type: object.metadata.itemType,
         model_url: object.metadata.modelUrl,
-        xpos: (object as any).position.x,
-        ypos: (object as any).position.y,
-        zpos: (object as any).position.z,
-        rotation: (object as any).rotation.y,
-        scale_x: (object as any).scale.x,
-        scale_y: (object as any).scale.y,
-        scale_z: (object as any).scale.z,
-        fixed: (object as any).fixed
+        xpos: object.position.x,
+        ypos: object.position.y,
+        zpos: object.position.z,
+        rotation: object.rotation.y,
+        scale_x: object.scale.x,
+        scale_y: object.scale.y,
+        scale_z: object.scale.z,
+        fixed: object.fixed
       };
     }
 
-    const room = {
+    var room = {
       floorplan: this.floorplan.saveFloorplan(),
       items: items_arr
     };
@@ -1735,18 +1734,18 @@ export class Model {
     return JSON.stringify(room);
   }
 
-  public newRoom(floorplan: string, items) {
+  private newRoom(floorplan: string, items) {
     this.scene.clearItems();
     this.floorplan.loadFloorplan(floorplan);
     items.forEach(item => {
-      const position = new Vector3(item.xpos, item.ypos, item.zpos);
-      const metadata = {
+      var position = new THREE.Vector3(item.xpos, item.ypos, item.zpos);
+      var metadata = {
         itemName: item.item_name,
         resizable: item.resizable,
         itemType: item.item_type,
         modelUrl: item.model_url
       };
-      const scale = new Vector3(item.scale_x, item.scale_y, item.scale_z);
+      var scale = new THREE.Vector3(item.scale_x, item.scale_y, item.scale_z);
       this.scene.addItem(
         item.item_type,
         item.model_url,

@@ -72,24 +72,24 @@ export abstract class Item extends THREE.Mesh {
 
     this.resizable = metadata.resizable;
 
-    (this as any).castShadow = true;
-    (this as any).receiveShadow = false;
+    this.castShadow = true;
+    this.receiveShadow = false;
 
     if (position) {
-      (this as any).position.copy(position);
+      this.position.copy(position);
       this.position_set = true;
     } else {
       this.position_set = false;
     }
 
     // center in its boundingbox
-    (this as any).geometry.computeBoundingBox();
-    (this as any).geometry.center();
-    (this as any).geometry.computeBoundingBox();
+    this.geometry.computeBoundingBox();
+    this.geometry.center();
+    this.geometry.computeBoundingBox();
     this.halfSize = this.objectHalfSize();
 
     if (rotation) {
-      (this as any).rotation.y = rotation;
+      this.rotation.y = rotation;
     }
 
     if (scale != null) {
@@ -114,8 +114,8 @@ export abstract class Item extends THREE.Mesh {
   public setScale(x: number, y: number, z: number) {
     var scaleVec = new THREE.Vector3(x, y, z);
     this.halfSize.multiply(scaleVec);
-    scaleVec.multiply((this as any).scale)
-    ;(this as any).scale.set(scaleVec.x, scaleVec.y, scaleVec.z);
+    scaleVec.multiply(this.scale)
+    this.scale.set(scaleVec.x, scaleVec.y, scaleVec.z);
     this.resized();
     this.scene.needsUpdate = true;
   };
@@ -162,7 +162,7 @@ export abstract class Item extends THREE.Mesh {
     const on = this.hover || this.selected;
     this.highlighted = on;
     const hex = on ? this.emissiveColor : 0x000000;
-    const materials = Array.isArray((this as any).material) ? (this as any).material : [(this as any).material];
+    const materials = Array.isArray(this.material) ? this.material : [this.material];
     materials.forEach((material) => {
       if ('emissive' in material) {
         (material as any).emissive.setHex(hex);
@@ -196,7 +196,7 @@ export abstract class Item extends THREE.Mesh {
 
   /** intersection has attributes point (vec3) and object (THREE.Mesh) */
   public clickPressed(intersection) {
-    this.dragOffset.copy(intersection.point).sub((this as any).position);
+    this.dragOffset.copy(intersection.point).sub(this.position);
   };
 
   /** */
@@ -214,8 +214,8 @@ export abstract class Item extends THREE.Mesh {
       var angle = Utils.angle(
         0,
         1,
-        intersection.point.x - (this as any).position.x,
-        intersection.point.z - (this as any).position.z);
+        intersection.point.x - this.position.x,
+        intersection.point.z - this.position.z);
 
       var snapTolerance = Math.PI / 16.0;
 
@@ -227,13 +227,13 @@ export abstract class Item extends THREE.Mesh {
         }
       }
 
-      (this as any).rotation.y = angle;
+      this.rotation.y = angle;
     }
   }
 
   /** */
   public moveToPosition(vec3, intersection) {
-    (this as any).position.copy(vec3);
+    this.position.copy(vec3);
   }
 
   /** */
@@ -260,7 +260,7 @@ export abstract class Item extends THREE.Mesh {
    */
   public getCorners(xDim, yDim, position) {
 
-    position = position || (this as any).position;
+    position = position || this.position;
 
     var halfSize = this.halfSize.clone();
 
@@ -270,8 +270,8 @@ export abstract class Item extends THREE.Mesh {
     var c4 = new THREE.Vector3(-halfSize.x, 0, halfSize.z);
 
     var transform = new THREE.Matrix4();
-    //console.log((this as any).rotation.y);
-    transform.makeRotationY((this as any).rotation.y); //  + Math.PI/2)
+    //console.log(this.rotation.y);
+    transform.makeRotationY(this.rotation.y); //  + Math.PI/2)
 
     c1.applyMatrix4(transform);
     c2.applyMatrix4(transform);
@@ -303,7 +303,7 @@ export abstract class Item extends THREE.Mesh {
 
   /** */
   public showError(vec3) {
-    vec3 = vec3 || (this as any).position;
+    vec3 = vec3 || this.position;
     if (!this.error) {
       this.error = true;
       this.errorGlow = this.createGlow(this.errorColor, 0.8, true);
@@ -339,10 +339,10 @@ export abstract class Item extends THREE.Mesh {
       depthTest: !ignoreDepth
     });
 
-    const glow = new THREE.Mesh((this as any).geometry.clone(), glowMaterial);
-    glow.position.copy((this as any).position);
-    glow.rotation.copy((this as any).rotation);
-    glow.scale.copy((this as any).scale);
+    const glow = new THREE.Mesh(this.geometry.clone(), glowMaterial);
+    glow.position.copy(this.position);
+    glow.rotation.copy(this.rotation);
+    glow.scale.copy(this.scale);
     return glow;
   };
 }
