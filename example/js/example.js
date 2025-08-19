@@ -35,8 +35,10 @@ window.addEventListener('DOMContentLoaded', () => {
     views[newTab].style.display = 'block';
 
     if (newTab === 'FLOORPLAN') {
+      const floorplanner = document.querySelector('#floorplanner');
+      floorplanner.style.height = (window.innerHeight - floorplanner.offsetTop) + 'px';
+      blueprint3d.floorplanner.resizeView();
       blueprint3d.floorplanner.reset();
-      window.dispatchEvent(new Event('resize'));
     }
 
     if (newTab === 'DESIGN') {
@@ -48,6 +50,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('app-tab-changed', (e) => {
     handleTabChange(e.detail.tabName);
+  });
+
+  window.addEventListener('resize', () => {
+    if (currentTab === 'FLOORPLAN') {
+      const floorplanner = document.querySelector('#floorplanner');
+      floorplanner.style.height = (window.innerHeight - floorplanner.offsetTop) + 'px';
+      blueprint3d.floorplanner.resizeView();
+    }
   });
 
   const event = new CustomEvent('blueprint3d-ready', { detail: { blueprint3d } });

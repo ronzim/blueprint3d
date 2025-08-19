@@ -8,9 +8,6 @@
   <teleport to="#side-menu-container">
     <side-menu @tab-changed="onTabChanged" />
   </teleport>
-  <teleport to="#camera-controls-container">
-    <camera-buttons />
-  </teleport>
   <teleport to="#main-controls-container">
     <main-controls />
   </teleport>
@@ -29,7 +26,6 @@
 import AddItems from './components/AddItems.vue';
 import ContextMenu from './components/ContextMenu.vue';
 import SideMenu from './components/SideMenu.vue';
-import CameraButtons from './components/CameraButtons.vue';
 import MainControls from './components/MainControls.vue';
 import ModalEffects from './components/ModalEffects.vue';
 import TextureSelector from './components/TextureSelector.vue';
@@ -41,7 +37,6 @@ export default {
     AddItems,
     ContextMenu,
     SideMenu,
-    CameraButtons,
     MainControls,
     ModalEffects,
     TextureSelector,
