@@ -1,5 +1,6 @@
 import { Floorplan } from '../model';
 import { FloorplannerView } from './floorplanner_view';
+import { Callbacks } from '../core/callbacks';
 
 /** */
 export const floorplannerModes = {
@@ -43,7 +44,7 @@ export class Floorplanner {
   private wallWidth: number;
 
   /** */
-  private modeResetCallbacks = $.Callbacks();
+  private modeResetCallbacks = new Callbacks();
 
   /** */
   private canvasElement;
@@ -83,7 +84,7 @@ export class Floorplanner {
 
   /** */
   constructor(canvas: string, private floorplan: Floorplan) {
-    this.canvasElement = $("#" + canvas);
+    this.canvasElement = document.getElementById(canvas);
 
     this.view = new FloorplannerView(this.floorplan, this, canvas);
 
@@ -100,20 +101,20 @@ export class Floorplanner {
 
     var scope = this;
 
-    this.canvasElement.mousedown(() => {
+    this.canvasElement.addEventListener('mousedown', () => {
       scope.mousedown();
     });
-    this.canvasElement.mousemove(event => {
+    this.canvasElement.addEventListener('mousemove', event => {
       scope.mousemove(event);
     });
-    this.canvasElement.mouseup(() => {
+    this.canvasElement.addEventListener('mouseup', () => {
       scope.mouseup();
     });
-    this.canvasElement.mouseleave(() => {
+    this.canvasElement.addEventListener('mouseleave', () => {
       scope.mouseleave();
     });
 
-    $(document).keyup(e => {
+    document.addEventListener('keyup', e => {
       if (e.keyCode == 27) {
         scope.escapeKey();
       }
@@ -178,10 +179,10 @@ export class Floorplanner {
     this.rawMouseY = event.clientY;
 
     this.mouseX =
-      (event.clientX - this.canvasElement.offset().left) * this.cmPerPixel +
+      (event.clientX - this.canvasElement.getBoundingClientRect().left) * this.cmPerPixel +
       this.originX * this.cmPerPixel;
     this.mouseY =
-      (event.clientY - this.canvasElement.offset().top) * this.cmPerPixel +
+      (event.clientY - this.canvasElement.getBoundingClientRect().top) * this.cmPerPixel +
       this.originY * this.cmPerPixel;
 
     // update target (snapped position of actual mouse)
@@ -291,8 +292,8 @@ export class Floorplanner {
 
   /** Sets the origin so that floorplan is centered */
   private resetOrigin() {
-    var centerX = this.canvasElement.innerWidth() / 2.0;
-    var centerY = this.canvasElement.innerHeight() / 2.0;
+    var centerX = this.canvasElement.clientWidth / 2.0;
+    var centerY = this.canvasElement.clientHeight / 2.0;
     var centerFloorplan = this.floorplan.getCenter();
     this.originX = centerFloorplan.x * this.pixelsPerCm - centerX;
     this.originY = centerFloorplan.z * this.pixelsPerCm - centerY;

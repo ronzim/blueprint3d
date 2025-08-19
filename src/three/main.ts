@@ -29,7 +29,7 @@ export var Main = function (model, element, canvasElement, opts) {
   var scene = model.scene;
 
   var model = model;
-  this.element = $(element);
+  this.element = document.querySelector(element);
   var domElement;
 
   var camera;
@@ -65,7 +65,7 @@ export var Main = function (model, element, canvasElement, opts) {
   function init() {
     THREE.ImageUtils.crossOrigin = "";
 
-    domElement = scope.element.get(0); // Container
+    domElement = scope.element; // Container
     camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
     renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -95,7 +95,7 @@ export var Main = function (model, element, canvasElement, opts) {
     // handle window resizing
     scope.updateWindowSize();
     if (options.resize) {
-      $(window).resize(scope.updateWindowSize);
+      window.addEventListener('resize', scope.updateWindowSize);
     }
 
     // setup camera nicely
@@ -108,16 +108,15 @@ export var Main = function (model, element, canvasElement, opts) {
 
     animate();
 
-    scope.element
-      .mouseenter(function () {
-        mouseOver = true;
-      })
-      .mouseleave(function () {
-        mouseOver = false;
-      })
-      .click(function () {
-        hasClicked = true;
-      });
+    scope.element.addEventListener('mouseenter', function () {
+      mouseOver = true;
+    });
+    scope.element.addEventListener('mouseleave', function () {
+      mouseOver = false;
+    });
+    scope.element.addEventListener('click', function () {
+      hasClicked = true;
+    });
 
     //canvas = new ThreeCanvas(canvasElement, scope);
   }
@@ -212,14 +211,14 @@ export var Main = function (model, element, canvasElement, opts) {
   };
 
   this.updateWindowSize = function () {
-    scope.heightMargin = scope.element.offset().top;
-    scope.widthMargin = scope.element.offset().left;
+    scope.heightMargin = scope.element.getBoundingClientRect().top;
+    scope.widthMargin = scope.element.getBoundingClientRect().left;
 
-    scope.elementWidth = scope.element.innerWidth();
+    scope.elementWidth = scope.element.clientWidth;
     if (options.resize) {
       scope.elementHeight = window.innerHeight - scope.heightMargin;
     } else {
-      scope.elementHeight = scope.element.innerHeight();
+      scope.elementHeight = scope.element.clientHeight;
     }
 
     camera.aspect = scope.elementWidth / scope.elementHeight;

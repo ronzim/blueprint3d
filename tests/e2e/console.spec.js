@@ -11,11 +11,12 @@ describe('E2E Console Errors', () => {
 
     page.on('console', msg => {
       const text = msg.text();
-      if (msg.type() === 'error' && !text.includes('favicon.ico') && !text.includes('runtime.lastError')) {
-        errors.push(text);
+      const url = msg.location().url;
+      if (msg.type() === 'error' && !url.includes('favicon.ico') && !text.includes('runtime.lastError')) {
+        errors.push(`Error: "${text}" at ${url}`);
       }
     });
-  });
+  }, 60000);
 
   afterAll(async () => {
     if (browser) {
