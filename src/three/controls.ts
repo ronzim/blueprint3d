@@ -9,6 +9,7 @@ Contributors:
  */
 
 import * as THREE from 'three';
+import { Callbacks } from '../core/callbacks';
 
 export function Controls(object, domElement) {
   this.object = object;
@@ -53,7 +54,7 @@ export function Controls(object, domElement) {
   // The four arrow keys
   this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
 
-  this.cameraMovedCallbacks = $.Callbacks();
+  this.cameraMovedCallbacks = new Callbacks();
 
   this.needsUpdate = true;
 

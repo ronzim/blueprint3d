@@ -5,6 +5,7 @@ import { Lights } from './lights';
 import { Skybox } from './skybox';
 import { Controls } from './controls';
 import { HUD } from './hud';
+import { Callbacks } from '../core/callbacks';
 
 export var Main = function (model, element, canvasElement, opts) {
   var scope = this;
@@ -54,12 +55,12 @@ export var Main = function (model, element, canvasElement, opts) {
   this.elementHeight;
   this.elementWidth;
 
-  this.itemSelectedCallbacks = $.Callbacks(); // item
-  this.itemUnselectedCallbacks = $.Callbacks();
+  this.itemSelectedCallbacks = new Callbacks(); // item
+  this.itemUnselectedCallbacks = new Callbacks();
 
-  this.wallClicked = $.Callbacks(); // wall
-  this.floorClicked = $.Callbacks(); // floor
-  this.nothingClicked = $.Callbacks();
+  this.wallClicked = new Callbacks(); // wall
+  this.floorClicked = new Callbacks(); // floor
+  this.nothingClicked = new Callbacks();
 
   function init() {
     THREE.ImageUtils.crossOrigin = "";
