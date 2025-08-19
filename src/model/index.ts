@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as Utils from '../core/utils';
 import { Configuration, configWallThickness, configWallHeight } from '../core/configuration';
+import { Callbacks } from '../core/callbacks';
 import { Item } from '../items/item';
 import { Factory } from '../items/factory';
 
@@ -18,13 +19,13 @@ export class Corner {
   private wallEnds: Wall[] = [];
 
   /** Callbacks to be fired on movement. */
-  private moved_callbacks = $.Callbacks();
+  private moved_callbacks = new Callbacks();
 
   /** Callbacks to be fired on removal. */
-  private deleted_callbacks = $.Callbacks();
+  private deleted_callbacks = new Callbacks();
 
   /** Callbacks to be fired in case of action. */
-  private action_callbacks = $.Callbacks();
+  private action_callbacks = new Callbacks();
 
   /** Constructs a corner.
    * @param floorplan The associated floorplan.
@@ -403,13 +404,13 @@ export class Wall {
   public height = Configuration.getNumericValue(configWallHeight);
 
   /** Actions to be applied after movement. */
-  private moved_callbacks = $.Callbacks();
+  private moved_callbacks = new Callbacks();
 
   /** Actions to be applied on removal. */
-  private deleted_callbacks = $.Callbacks();
+  private deleted_callbacks = new Callbacks();
 
   /** Actions to be applied explicitly. */
-  private action_callbacks = $.Callbacks();
+  private action_callbacks = new Callbacks();
 
   /**
    * Constructs a new wall.
@@ -583,7 +584,7 @@ export class HalfEdge {
   private invExteriorTransform = new THREE.Matrix4();
 
   /** */
-  public redrawCallbacks = $.Callbacks();
+  public redrawCallbacks = new Callbacks();
 
   /**
    * Constructs a half edge.
@@ -878,7 +879,7 @@ export class Room {
   private customTexture = false;
 
   /** */
-  private floorChangeCallbacks = $.Callbacks();
+  private floorChangeCallbacks = new Callbacks();
 
   /**
    *  ordered CCW
@@ -1019,19 +1020,19 @@ export class Floorplan {
   private rooms: Room[] = [];
 
   /** */
-  private new_wall_callbacks = $.Callbacks();
+  private new_wall_callbacks = new Callbacks();
 
   /** */
-  private new_corner_callbacks = $.Callbacks();
+  private new_corner_callbacks = new Callbacks();
 
   /** */
-  private redraw_callbacks = $.Callbacks();
+  private redraw_callbacks = new Callbacks();
 
   /** */
-  private updated_rooms = $.Callbacks();
+  private updated_rooms = new Callbacks();
 
   /** */
-  public roomLoadedCallbacks = $.Callbacks();
+  public roomLoadedCallbacks = new Callbacks();
 
   /**
    * Floor textures are owned by the floorplan, because room objects are
@@ -1529,13 +1530,13 @@ export class Scene {
   private loader: THREE.JSONLoader;
 
   /** */
-  private itemLoadingCallbacks = $.Callbacks();
+  private itemLoadingCallbacks = new Callbacks();
 
   /** Item */
-  private itemLoadedCallbacks = $.Callbacks();
+  private itemLoadedCallbacks = new Callbacks();
 
   /** Item */
-  private itemRemovedCallbacks = $.Callbacks();
+  private itemRemovedCallbacks = new Callbacks();
 
   /**
    * Constructs a scene.
@@ -1673,16 +1674,16 @@ export class Model {
   public scene: Scene;
 
   /** */
-  private roomLoadingCallbacks = $.Callbacks();
+  private roomLoadingCallbacks = new Callbacks();
 
   /** */
-  private roomLoadedCallbacks = $.Callbacks();
+  private roomLoadedCallbacks = new Callbacks();
 
   /** name */
-  private roomSavedCallbacks = $.Callbacks();
+  private roomSavedCallbacks = new Callbacks();
 
   /** success (bool), copy (bool) */
-  private roomDeletedCallbacks = $.Callbacks();
+  private roomDeletedCallbacks = new Callbacks();
 
   /** Constructs a new model.
    * @param textureDir The directory containing the textures.

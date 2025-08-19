@@ -49,7 +49,7 @@ export class FloorplannerView {
     this.context = this.canvasElement.getContext("2d");
 
     var scope = this;
-    $(window).resize(() => {
+    window.addEventListener('resize', () => {
       scope.handleWindowResize();
     });
     this.handleWindowResize();
@@ -57,12 +57,9 @@ export class FloorplannerView {
 
   /** */
   public handleWindowResize() {
-    var canvasSel = $("#" + this.canvas);
-    var parent = canvasSel.parent();
-    canvasSel.height(parent.innerHeight());
-    canvasSel.width(parent.innerWidth());
-    this.canvasElement.height = parent.innerHeight();
-    this.canvasElement.width = parent.innerWidth();
+    var parent = this.canvasElement.parentElement;
+    this.canvasElement.height = parent.clientHeight;
+    this.canvasElement.width = parent.clientWidth;
     this.draw();
   }
 
