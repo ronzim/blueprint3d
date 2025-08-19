@@ -77,7 +77,7 @@ export var HUD = function (three) {
         }
       });
     }
-    three.needsUpdate();
+    three.needsUpdate_();
   }
 
   function getColor() {
