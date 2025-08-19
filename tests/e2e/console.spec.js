@@ -11,9 +11,9 @@ describe('E2E Console Errors', () => {
 
     page.on('console', msg => {
       const text = msg.text();
-      const url = msg.location().url;
-      if (msg.type() === 'error' && !url.includes('favicon.ico') && !text.includes('runtime.lastError')) {
-        errors.push(`Error: "${text}" at ${url}`);
+      const location = msg.location();
+      if (msg.type() === 'error' && !location.url.includes('favicon.ico') && !text.includes('runtime.lastError')) {
+        errors.push(text);
       }
     });
   }, 60000);

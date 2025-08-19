@@ -17,12 +17,6 @@ The latter command generates `example/js/blueprint3d.js` from `src`.
 
 The easiest way to run locally is to run a local server from the `example` directory, eg using `VS Code Live Server` extension.
 
-## Todo list
-
-- [ ] dependencies update
-- [ ] remove jquery dependency
-- [ ] remove grunt in favour of a better dev experience
-
 ## Directory Structure
 
 ### `src/` Directory
