@@ -658,7 +658,8 @@ export class HalfEdge {
         v3.x, v3.y, v3.z,
         v4.x, v4.y, v4.z
     ]), 3));
-    geometry.setIndex([0, 1, 2, 0, 2, 3]);
+    const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
+    geometry.addAttribute('index', new THREE.BufferAttribute(indices, 1));
     geometry.computeVertexNormals();
     geometry.computeBoundingBox();
 
