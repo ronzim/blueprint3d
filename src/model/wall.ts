@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { EventEmitter } from '../core/event_emitter';
 import { Configuration, configWallThickness, configWallHeight } from '../core/configuration';
 import { Utils } from '../core/utils';
 import { Item } from '../items/item';
@@ -12,7 +12,7 @@ export const defaultWallTexture = {
   scale: 0
 };
 
-export class Wall {
+export class Wall extends EventEmitter {
   private id: string;
   public frontEdge: HalfEdge = null;
   public backEdge: HalfEdge = null;
@@ -25,11 +25,24 @@ export class Wall {
     configWallThickness
   );
   public height = Configuration.getNumericValue(configWallHeight);
-  private moved_callbacks = $.Callbacks();
-  private deleted_callbacks = $.Callbacks();
-  private action_callbacks = $.Callbacks();
+  public moved_callbacks = {
+    add: (listener: () => void) => this.on('moved', listener),
+    fire: () => this.emit('moved'),
+    remove: (listener: () => void) => this.off('moved', listener)
+  };
+  public deleted_callbacks = {
+    add: (listener: () => void) => this.on('deleted', listener),
+    fire: () => this.emit('deleted'),
+    remove: (listener: () => void) => this.off('deleted', listener)
+  };
+  public action_callbacks = {
+    add: (listener: (action: any) => void) => this.on('action', listener),
+    fire: (action: any) => this.emit('action', action),
+    remove: (listener: (action: any) => void) => this.off('action', listener)
+  };
 
   constructor(private start: Corner, private end: Corner) {
+    super();
     this.id = this.getUuid();
     this.start.attachStart(this);
     this.end.attachEnd(this);

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { EventEmitter } from '../core/event_emitter';
 import { Utils } from '../core/utils';
 import { Wall } from './wall';
 import { Corner } from './corner';
@@ -8,18 +8,35 @@ import { HalfEdge } from './half_edge';
 
 export const defaultFloorPlanTolerance = 10.0;
 
-export class Floorplan {
+export class Floorplan extends EventEmitter {
   public walls: Wall[] = [];
   public corners: Corner[] = [];
   public rooms: Room[] = [];
-  private new_wall_callbacks = $.Callbacks();
-  private new_corner_callbacks = $.Callbacks();
-  private redraw_callbacks = $.Callbacks();
-  private updated_rooms = $.Callbacks();
-  public roomLoadedCallbacks = $.Callbacks();
+  public new_wall_callbacks = {
+    add: (listener: (wall: Wall) => void) => this.on('newWall', listener),
+    fire: (wall: Wall) => this.emit('newWall', wall)
+  };
+  public new_corner_callbacks = {
+    add: (listener: (corner: Corner) => void) => this.on('newCorner', listener),
+    fire: (corner: Corner) => this.emit('newCorner', corner)
+  };
+  public redraw_callbacks = {
+    add: (listener: () => void) => this.on('redraw', listener),
+    fire: () => this.emit('redraw')
+  };
+  public updated_rooms = {
+    add: (listener: () => void) => this.on('updatedRooms', listener),
+    fire: () => this.emit('updatedRooms')
+  };
+  public roomLoadedCallbacks = {
+    add: (listener: () => void) => this.on('roomLoaded', listener),
+    fire: () => this.emit('roomLoaded')
+  };
   private floorTextures = {};
 
-  constructor() {}
+  constructor() {
+    super();
+  }
 
   public wallEdges(): HalfEdge[] {
     var edges = [];

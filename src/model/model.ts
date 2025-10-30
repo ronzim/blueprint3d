@@ -1,17 +1,30 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { EventEmitter } from '../core/event_emitter';
 import { Floorplan } from './floorplan';
 import { Scene } from './scene';
 
-export class Model {
+export class Model extends EventEmitter {
   public floorplan: Floorplan;
   public scene: Scene;
-  private roomLoadingCallbacks = $.Callbacks();
-  private roomLoadedCallbacks = $.Callbacks();
-  private roomSavedCallbacks = $.Callbacks();
-  private roomDeletedCallbacks = $.Callbacks();
+  public roomLoadingCallbacks = {
+    add: (listener: () => void) => this.on('roomLoading', listener),
+    fire: () => this.emit('roomLoading')
+  };
+  public roomLoadedCallbacks = {
+    add: (listener: () => void) => this.on('roomLoaded', listener),
+    fire: () => this.emit('roomLoaded')
+  };
+  public roomSavedCallbacks = {
+    add: (listener: () => void) => this.on('roomSaved', listener),
+    fire: () => this.emit('roomSaved')
+  };
+  public roomDeletedCallbacks = {
+    add: (listener: () => void) => this.on('roomDeleted', listener),
+    fire: () => this.emit('roomDeleted')
+  };
 
   constructor(textureDir: string) {
+    super();
     this.floorplan = new Floorplan();
     this.scene = new Scene(this, textureDir);
   }

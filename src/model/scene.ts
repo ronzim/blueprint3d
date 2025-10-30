@@ -1,20 +1,30 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { EventEmitter } from '../core/event_emitter';
 import { Utils } from '../core/utils';
 import { Item } from '../items/item';
 import { Factory } from '../items/factory';
 import { Model } from './model';
 
-export class Scene {
+export class Scene extends EventEmitter {
   private scene: THREE.Scene;
   private items: Item[] = [];
   public needsUpdate = false;
   private loader: THREE.ObjectLoader;
-  private itemLoadingCallbacks = $.Callbacks();
-  private itemLoadedCallbacks = $.Callbacks();
-  private itemRemovedCallbacks = $.Callbacks();
+  public itemLoadingCallbacks = {
+    add: (listener: () => void) => this.on('itemLoading', listener),
+    fire: () => this.emit('itemLoading')
+  };
+  public itemLoadedCallbacks = {
+    add: (listener: (item: Item) => void) => this.on('itemLoaded', listener),
+    fire: (item: Item) => this.emit('itemLoaded', item)
+  };
+  public itemRemovedCallbacks = {
+    add: (listener: (item: Item) => void) => this.on('itemRemoved', listener),
+    fire: (item: Item) => this.emit('itemRemoved', item)
+  };
 
   constructor(private model: Model, private textureDir: string) {
+    super();
     this.scene = new THREE.Scene();
     this.loader = new THREE.ObjectLoader();
   }

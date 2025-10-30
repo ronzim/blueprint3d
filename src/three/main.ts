@@ -1,6 +1,6 @@
   
 import * as THREE from 'three';
-import $ from 'jquery';
+import { EventEmitter } from '../core/event_emitter';
 import { Controller } from './controller';
 import { Floorplan } from './floorplan';
 import { Lights } from './lights';
@@ -10,15 +10,30 @@ import { HUD } from './hud';
 import { Model } from '../model/model';
 import { Scene as ModelScene } from '../model/scene';
 
-export class Main {
-  private element: JQuery;
+export class Main extends EventEmitter {
+  private element: HTMLElement;
   public controls: Controls;
   private controller: Controller;
-  public itemSelectedCallbacks = $.Callbacks();
-  public itemUnselectedCallbacks = $.Callbacks();
-  public wallClicked = $.Callbacks();
-  public floorClicked = $.Callbacks();
-  public nothingClicked = $.Callbacks();
+  public itemSelectedCallbacks = {
+    add: (listener: (item: any) => void) => this.on('itemSelected', listener),
+    fire: (item: any) => this.emit('itemSelected', item)
+  };
+  public itemUnselectedCallbacks = {
+    add: (listener: () => void) => this.on('itemUnselected', listener),
+    fire: () => this.emit('itemUnselected')
+  };
+  public wallClicked = {
+    add: (listener: () => void) => this.on('wallClicked', listener),
+    fire: () => this.emit('wallClicked')
+  };
+  public floorClicked = {
+    add: (listener: () => void) => this.on('floorClicked', listener),
+    fire: () => this.emit('floorClicked')
+  };
+  public nothingClicked = {
+    add: (listener: () => void) => this.on('nothingClicked', listener),
+    fire: () => this.emit('nothingClicked')
+  };
   public heightMargin: number;
   public widthMargin: number;
   public elementHeight: number;
@@ -39,6 +54,7 @@ export class Main {
   private options: any;
 
   constructor(model: Model, element: string, canvasElement: string, opts) {
+    super();
     this.model = model;
     this.scene = model.scene;
 
@@ -57,9 +73,12 @@ export class Main {
       }
     }
 
-    this.element = $(element);
+    this.element = document.getElementById(element.replace('#', '')) as HTMLElement;
+    if (!this.element) {
+      throw new Error(`Element with id "${element}" not found`);
+    }
 
-    this.domElement = this.element.get(0);
+    this.domElement = this.element;
     this.camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -88,7 +107,7 @@ export class Main {
 
     this.updateWindowSize();
     if (this.options.resize) {
-      $(window).resize(this.updateWindowSize.bind(this));
+      window.addEventListener('resize', this.updateWindowSize.bind(this));
     }
 
     this.centerCamera();

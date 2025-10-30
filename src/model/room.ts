@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { EventEmitter } from '../core/event_emitter';
 import { Utils } from '../core/utils';
 import { Corner } from './corner';
 import { Floorplan } from './floorplan';
@@ -10,14 +10,18 @@ export const defaultRoomTexture = {
   scale: 400
 };
 
-export class Room {
+export class Room extends EventEmitter {
   public interiorCorners: Corner[] = [];
   private edgePointer = null;
   public floorPlane: THREE.Mesh = null;
   private customTexture = false;
-  private floorChangeCallbacks = $.Callbacks();
+  public floorChangeCallbacks = {
+    add: (listener: () => void) => this.on('floorChange', listener),
+    fire: () => this.emit('floorChange')
+  };
 
   constructor(private floorplan: Floorplan, public corners: Corner[]) {
+    super();
     this.updateWalls();
     this.updateInteriorCorners();
     this.generatePlane();

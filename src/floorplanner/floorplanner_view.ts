@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import $ from 'jquery';
 import { Configuration } from '../core/configuration';
 import { Dimensioning } from '../core/dimensioning';
 import { Utils } from '../core/utils';
@@ -42,20 +41,19 @@ export class FloorplannerView {
     this.canvasElement = <HTMLCanvasElement>document.getElementById(canvas);
     this.context = this.canvasElement.getContext("2d");
 
-    var scope = this;
-    $(window).resize(() => {
-      scope.handleWindowResize();
+    window.addEventListener('resize', () => {
+      this.handleWindowResize();
     });
     this.handleWindowResize();
   }
 
   public handleWindowResize() {
-    var canvasSel = $("#" + this.canvas);
-    var parent = canvasSel.parent();
-    canvasSel.height(parent.innerHeight());
-    canvasSel.width(parent.innerWidth());
-    this.canvasElement.height = parent.innerHeight();
-    this.canvasElement.width = parent.innerWidth();
+    const canvasElement = document.getElementById(this.canvas) as HTMLCanvasElement;
+    const parent = canvasElement.parentElement;
+    canvasElement.style.height = parent.clientHeight + 'px';
+    canvasElement.style.width = parent.clientWidth + 'px';
+    this.canvasElement.height = parent.clientHeight;
+    this.canvasElement.width = parent.clientWidth;
     this.draw();
   }
 

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { EventEmitter } from '../core/event_emitter';
 
-export class Controls {
+export class Controls extends EventEmitter {
   public object: THREE.Camera;
   public domElement: HTMLElement | Document;
   public enabled = true;
@@ -21,7 +21,10 @@ export class Controls {
   public maxPolarAngle = Math.PI / 2;
   public noKeys = false;
   public keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
-  public cameraMovedCallbacks = $.Callbacks();
+  public cameraMovedCallbacks = {
+    add: (listener: () => void) => this.on('cameraMoved', listener),
+    fire: () => this.emit('cameraMoved')
+  };
   public needsUpdate = true;
 
   private EPS = 0.000001;
@@ -55,6 +58,7 @@ export class Controls {
   private state = this.STATE.NONE;
 
   constructor(object: THREE.Camera, domElement?: HTMLElement | Document) {
+    super();
     this.object = object;
     this.domElement = domElement !== undefined ? domElement : document;
 

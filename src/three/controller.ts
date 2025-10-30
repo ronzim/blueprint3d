@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import $ from 'jquery';
 import { Utils } from '../core/utils';
 import { Model } from '../model/model';
 import { Main } from './main';

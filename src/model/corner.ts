@@ -1,17 +1,29 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { EventEmitter } from '../core/event_emitter';
 import { Utils } from '../core/utils';
 import { Floorplan } from './floorplan';
 import { Wall } from './wall';
 
 export const cornerTolerance: number = 20;
 
-export class Corner {
+export class Corner extends EventEmitter {
   private wallStarts: Wall[] = [];
   private wallEnds: Wall[] = [];
-  private moved_callbacks = $.Callbacks();
-  private deleted_callbacks = $.Callbacks();
-  private action_callbacks = $.Callbacks();
+  public moved_callbacks = {
+    add: (listener: (x: number, y: number) => void) => this.on('moved', listener),
+    fire: (x: number, y: number) => this.emit('moved', x, y),
+    remove: (listener: (x: number, y: number) => void) => this.off('moved', listener)
+  };
+  public deleted_callbacks = {
+    add: (listener: (corner: Corner) => void) => this.on('deleted', listener),
+    fire: (corner: Corner) => this.emit('deleted', corner),
+    remove: (listener: (corner: Corner) => void) => this.off('deleted', listener)
+  };
+  public action_callbacks = {
+    add: (listener: (action: any) => void) => this.on('action', listener),
+    fire: (action: any) => this.emit('action', action),
+    remove: (listener: (action: any) => void) => this.off('action', listener)
+  };
 
   constructor(
     private floorplan: Floorplan,
@@ -19,6 +31,7 @@ export class Corner {
     public y: number,
     public id?: string
   ) {
+    super();
     this.id = id || Utils.guid();
   }
 

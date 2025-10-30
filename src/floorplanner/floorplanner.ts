@@ -1,10 +1,10 @@
-import $ from 'jquery';
+import { EventEmitter } from '../core/event_emitter';
 import { Floorplan } from '../model/floorplan';
 import { FloorplannerView } from './floorplanner_view';
 
 export const snapTolerance = 25;
 
-export class Floorplanner {
+export class Floorplanner extends EventEmitter {
   static floorplannerModes = {
     MOVE: 0,
     DRAW: 1,
@@ -19,8 +19,11 @@ export class Floorplanner {
   public targetY = 0;
   public lastNode = null;
   private wallWidth: number;
-  private modeResetCallbacks = $.Callbacks();
-  private canvasElement;
+  public modeResetCallbacks = {
+    add: (listener: (mode: number) => void) => this.on('modeReset', listener),
+    fire: (mode: number) => this.emit('modeReset', mode)
+  };
+  private canvasElement: HTMLElement;
   private view: FloorplannerView;
   private mouseDown = false;
   private mouseMoved = false;
@@ -34,7 +37,8 @@ export class Floorplanner {
   private pixelsPerCm: number;
 
   constructor(canvas: string, private floorplan: Floorplan) {
-    this.canvasElement = $("#" + canvas);
+    super();
+    this.canvasElement = document.getElementById(canvas);
     this.view = new FloorplannerView(this.floorplan, this, canvas);
 
     var cmPerFoot = 30.48;
@@ -46,29 +50,27 @@ export class Floorplanner {
 
     this.setMode(Floorplanner.floorplannerModes.MOVE);
 
-    var scope = this;
-
-    this.canvasElement.mousedown(() => {
-      scope.mousedown();
+    this.canvasElement.addEventListener('mousedown', () => {
+      this.mousedown();
     });
-    this.canvasElement.mousemove(event => {
-      scope.mousemove(event);
+    this.canvasElement.addEventListener('mousemove', (event: MouseEvent) => {
+      this.mousemove(event);
     });
-    this.canvasElement.mouseup(() => {
-      scope.mouseup();
+    this.canvasElement.addEventListener('mouseup', () => {
+      this.mouseup();
     });
-    this.canvasElement.mouseleave(() => {
-      scope.mouseleave();
+    this.canvasElement.addEventListener('mouseleave', () => {
+      this.mouseleave();
     });
 
-    $(document).keyup(e => {
+    document.addEventListener('keyup', (e: KeyboardEvent) => {
       if (e.keyCode == 27) {
-        scope.escapeKey();
+        this.escapeKey();
       }
     });
 
     floorplan.roomLoadedCallbacks.add(() => {
-      scope.reset();
+      this.reset();
     });
   }
 

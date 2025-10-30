@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { EventEmitter } from '../core/event_emitter';
 import { Utils } from '../core/utils';
 import { Wall } from './wall';
 import { Room } from './room';
 
-export class HalfEdge {
+export class HalfEdge extends EventEmitter {
   public next: HalfEdge;
   public prev: HalfEdge;
   public offset: number;
@@ -14,9 +14,13 @@ export class HalfEdge {
   public invInteriorTransform = new THREE.Matrix4();
   private exteriorTransform = new THREE.Matrix4();
   private invExteriorTransform = new THREE.Matrix4();
-  public redrawCallbacks = $.Callbacks();
+  public redrawCallbacks = {
+    add: (listener: () => void) => this.on('redraw', listener),
+    fire: () => this.emit('redraw')
+  };
 
   constructor(private room: Room, public wall: Wall, private front: boolean) {
+    super();
     this.front = front || false;
     this.offset = wall.thickness / 2.0;
     this.height = wall.height;
