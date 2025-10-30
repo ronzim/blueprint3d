@@ -17,12 +17,30 @@ The latter command generates `example/js/blueprint3d.js` from `src`.
 
 The easiest way to run locally is to run a local server from the `example` directory, eg using `VS Code Live Server` extension.
 
-## Documentation
+## 📚 Architecture Documentation
 
-📚 **Architecture & Improvement Documentation**:
-- [**ARCHITECTURE.md**](./ARCHITECTURE.md) - Comprehensive code structure analysis and architectural patterns
-- [**IMPROVEMENT_PLAN.md**](./IMPROVEMENT_PLAN.md) - Concrete improvement plan with code examples
-- [**DIAGRAMS.md**](./DIAGRAMS.md) - Visual architecture diagrams and data flow
+> **New!** Comprehensive architecture analysis and improvement plan available
+
+### Quick Links
+- 📋 [**SUMMARY.md**](./SUMMARY.md) - **START HERE** - Executive summary of findings and recommendations
+- 🏗️ [**ARCHITECTURE.md**](./ARCHITECTURE.md) - Detailed code structure analysis and architectural patterns
+- 📝 [**IMPROVEMENT_PLAN.md**](./IMPROVEMENT_PLAN.md) - Actionable improvement plan with 50+ code examples
+- 📊 [**DIAGRAMS.md**](./DIAGRAMS.md) - Visual architecture diagrams and data flow charts
+
+### Key Findings
+- ⚠️ **18 security vulnerabilities** in dependencies (critical priority)
+- 📦 **565KB bundle size** (can be reduced by 33%)
+- 🔧 **jQuery dependency** used in 40% of codebase (can be removed)
+- 📅 **Dependencies from 2014-2015** (Three.js v0.69, jQuery v2.1.3, Bootstrap v3.3.1)
+- ✅ **Solid architecture** with clear MVC separation
+
+### Improvement Roadmap
+1. **Phase 1** (2 weeks): Fix security issues, add linting/testing
+2. **Phase 2** (6 weeks): Remove jQuery, update Three.js
+3. **Phase 3** (6 weeks): Refactor architecture, add DI and state management
+4. **Phase 4** (4+ weeks): Performance optimization, documentation
+
+See [SUMMARY.md](./SUMMARY.md) for complete overview.
 
 ## Todo list
 
