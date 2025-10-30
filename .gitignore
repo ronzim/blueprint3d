@@ -12,3 +12,23 @@ doc
 dist
 example/js/blueprint3d.js
 example/js/three.min.js
+
+# Build outputs
+docs/
+*.js.map
+*.d.ts
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+/tmp/
