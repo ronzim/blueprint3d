@@ -221,9 +221,10 @@ export class Main extends EventEmitter {
 
   public updateWindowSize() {
     const rect = this.element.getBoundingClientRect();
-    // Add scroll offsets to match jQuery's .offset() behavior
-    this.heightMargin = rect.top + window.scrollY;
-    this.widthMargin = rect.left + window.scrollX;
+    // getBoundingClientRect returns viewport-relative coordinates
+    // which is what we need for calculating space from viewport edges
+    this.heightMargin = rect.top;
+    this.widthMargin = rect.left;
 
     // Using offsetWidth/offsetHeight to match jQuery's innerWidth/innerHeight behavior
     this.elementWidth = this.element.offsetWidth;
