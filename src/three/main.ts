@@ -119,16 +119,15 @@ export class Main extends EventEmitter {
 
     this.animate();
 
-    this.element
-      .mouseenter(() => {
-        this.mouseOver = true;
-      })
-      .mouseleave(() => {
-        this.mouseOver = false;
-      })
-      .click(() => {
-        this.hasClicked = true;
-      });
+    this.element.addEventListener('mouseenter', () => {
+      this.mouseOver = true;
+    });
+    this.element.addEventListener('mouseleave', () => {
+      this.mouseOver = false;
+    });
+    this.element.addEventListener('click', () => {
+      this.hasClicked = true;
+    });
   }
 
   private spin() {
@@ -221,14 +220,15 @@ export class Main extends EventEmitter {
   }
 
   public updateWindowSize() {
-    this.heightMargin = this.element.offset().top;
-    this.widthMargin = this.element.offset().left;
+    const rect = this.element.getBoundingClientRect();
+    this.heightMargin = rect.top;
+    this.widthMargin = rect.left;
 
-    this.elementWidth = this.element.innerWidth();
+    this.elementWidth = this.element.clientWidth;
     if (this.options.resize) {
       this.elementHeight = window.innerHeight - this.heightMargin;
     } else {
-      this.elementHeight = this.element.innerHeight();
+      this.elementHeight = this.element.clientHeight;
     }
 
     this.camera.aspect = this.elementWidth / this.elementHeight;
