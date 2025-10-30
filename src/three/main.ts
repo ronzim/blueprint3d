@@ -221,14 +221,16 @@ export class Main extends EventEmitter {
 
   public updateWindowSize() {
     const rect = this.element.getBoundingClientRect();
-    this.heightMargin = rect.top;
-    this.widthMargin = rect.left;
+    // Add scroll offsets to match jQuery's .offset() behavior
+    this.heightMargin = rect.top + window.scrollY;
+    this.widthMargin = rect.left + window.scrollX;
 
-    this.elementWidth = this.element.clientWidth;
+    // Using offsetWidth/offsetHeight to match jQuery's innerWidth/innerHeight behavior
+    this.elementWidth = this.element.offsetWidth;
     if (this.options.resize) {
       this.elementHeight = window.innerHeight - this.heightMargin;
     } else {
-      this.elementHeight = this.element.clientHeight;
+      this.elementHeight = this.element.offsetHeight;
     }
 
     this.camera.aspect = this.elementWidth / this.elementHeight;
