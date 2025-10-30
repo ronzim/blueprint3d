@@ -1,6 +1,7 @@
   
 import * as THREE from 'three';
 import $ from 'jquery';
+import { Callbacks } from '../core/event_emitter';
 import { Controller } from './controller';
 import { Floorplan } from './floorplan';
 import { Lights } from './lights';
@@ -14,11 +15,11 @@ export class Main {
   private element: JQuery;
   public controls: Controls;
   private controller: Controller;
-  public itemSelectedCallbacks = $.Callbacks();
-  public itemUnselectedCallbacks = $.Callbacks();
-  public wallClicked = $.Callbacks();
-  public floorClicked = $.Callbacks();
-  public nothingClicked = $.Callbacks();
+  public itemSelectedCallbacks = new Callbacks();
+  public itemUnselectedCallbacks = new Callbacks();
+  public wallClicked = new Callbacks();
+  public floorClicked = new Callbacks();
+  public nothingClicked = new Callbacks();
   public heightMargin: number;
   public widthMargin: number;
   public elementHeight: number;

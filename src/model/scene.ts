@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { Callbacks } from '../core/event_emitter';
 import { Utils } from '../core/utils';
 import { Item } from '../items/item';
 import { Factory } from '../items/factory';
@@ -10,9 +10,9 @@ export class Scene {
   private items: Item[] = [];
   public needsUpdate = false;
   private loader: THREE.ObjectLoader;
-  private itemLoadingCallbacks = $.Callbacks();
-  private itemLoadedCallbacks = $.Callbacks();
-  private itemRemovedCallbacks = $.Callbacks();
+  private itemLoadingCallbacks = new Callbacks();
+  private itemLoadedCallbacks = new Callbacks();
+  private itemRemovedCallbacks = new Callbacks();
 
   constructor(private model: Model, private textureDir: string) {
     this.scene = new THREE.Scene();

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { Callbacks } from '../core/event_emitter';
 
 export class Controls {
   public object: THREE.Camera;
@@ -21,7 +21,7 @@ export class Controls {
   public maxPolarAngle = Math.PI / 2;
   public noKeys = false;
   public keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
-  public cameraMovedCallbacks = $.Callbacks();
+  public cameraMovedCallbacks = new Callbacks();
   public needsUpdate = true;
 
   private EPS = 0.000001;

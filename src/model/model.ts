@@ -1,15 +1,15 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { Callbacks } from '../core/event_emitter';
 import { Floorplan } from './floorplan';
 import { Scene } from './scene';
 
 export class Model {
   public floorplan: Floorplan;
   public scene: Scene;
-  private roomLoadingCallbacks = $.Callbacks();
-  private roomLoadedCallbacks = $.Callbacks();
-  private roomSavedCallbacks = $.Callbacks();
-  private roomDeletedCallbacks = $.Callbacks();
+  private roomLoadingCallbacks = new Callbacks();
+  private roomLoadedCallbacks = new Callbacks();
+  private roomSavedCallbacks = new Callbacks();
+  private roomDeletedCallbacks = new Callbacks();
 
   constructor(textureDir: string) {
     this.floorplan = new Floorplan();

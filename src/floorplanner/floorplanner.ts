@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import { Callbacks } from '../core/event_emitter';
 import { Floorplan } from '../model/floorplan';
 import { FloorplannerView } from './floorplanner_view';
 
@@ -19,7 +19,7 @@ export class Floorplanner {
   public targetY = 0;
   public lastNode = null;
   private wallWidth: number;
-  private modeResetCallbacks = $.Callbacks();
+  private modeResetCallbacks = new Callbacks();
   private canvasElement;
   private view: FloorplannerView;
   private mouseDown = false;

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { Callbacks } from '../core/event_emitter';
 import { Utils } from '../core/utils';
 import { Corner } from './corner';
 import { Floorplan } from './floorplan';
@@ -15,7 +15,7 @@ export class Room {
   private edgePointer = null;
   public floorPlane: THREE.Mesh = null;
   private customTexture = false;
-  private floorChangeCallbacks = $.Callbacks();
+  private floorChangeCallbacks = new Callbacks();
 
   constructor(private floorplan: Floorplan, public corners: Corner[]) {
     this.updateWalls();

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { Callbacks } from '../core/event_emitter';
 import { Configuration, configWallThickness, configWallHeight } from '../core/configuration';
 import { Utils } from '../core/utils';
 import { Item } from '../items/item';
@@ -25,9 +25,9 @@ export class Wall {
     configWallThickness
   );
   public height = Configuration.getNumericValue(configWallHeight);
-  private moved_callbacks = $.Callbacks();
-  private deleted_callbacks = $.Callbacks();
-  private action_callbacks = $.Callbacks();
+  private moved_callbacks = new Callbacks();
+  private deleted_callbacks = new Callbacks();
+  private action_callbacks = new Callbacks();
 
   constructor(private start: Corner, private end: Corner) {
     this.id = this.getUuid();

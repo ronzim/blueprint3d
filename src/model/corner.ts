@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import $ from 'jquery';
+import { Callbacks } from '../core/event_emitter';
 import { Utils } from '../core/utils';
 import { Floorplan } from './floorplan';
 import { Wall } from './wall';
@@ -9,9 +9,9 @@ export const cornerTolerance: number = 20;
 export class Corner {
   private wallStarts: Wall[] = [];
   private wallEnds: Wall[] = [];
-  private moved_callbacks = $.Callbacks();
-  private deleted_callbacks = $.Callbacks();
-  private action_callbacks = $.Callbacks();
+  private moved_callbacks = new Callbacks();
+  private deleted_callbacks = new Callbacks();
+  private action_callbacks = new Callbacks();
 
   constructor(
     private floorplan: Floorplan,
