@@ -17,6 +17,13 @@ The latter command generates `example/js/blueprint3d.js` from `src`.
 
 The easiest way to run locally is to run a local server from the `example` directory, eg using `VS Code Live Server` extension.
 
+## Documentation
+
+📚 **Architecture & Improvement Documentation**:
+- [**ARCHITECTURE.md**](./ARCHITECTURE.md) - Comprehensive code structure analysis and architectural patterns
+- [**IMPROVEMENT_PLAN.md**](./IMPROVEMENT_PLAN.md) - Concrete improvement plan with code examples
+- [**DIAGRAMS.md**](./DIAGRAMS.md) - Visual architecture diagrams and data flow
+
 ## Todo list
 
 - [ ] dependencies update
