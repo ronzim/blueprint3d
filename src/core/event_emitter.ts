@@ -68,6 +68,7 @@ export class EventEmitter {
  * 
  * This provides a drop-in replacement for $.Callbacks() that maintains
  * the same API for minimal code changes during migration.
+ * Only implements the methods actually used in the codebase: add(), fire(), remove()
  */
 export class Callbacks {
   private listeners: Set<EventListener> = new Set();
@@ -91,65 +92,5 @@ export class Callbacks {
    */
   fire(...args: any[]): void {
     this.listeners.forEach(listener => listener(...args));
-  }
-
-  /**
-   * Call all callbacks with a given context and array of arguments
-   */
-  fireWith(context: any, args: any[]): void {
-    this.listeners.forEach(listener => listener.apply(context, args));
-  }
-
-  /**
-   * Determine if callbacks have been called at least once
-   */
-  fired(): boolean {
-    // This is a simplified implementation - full jQuery.Callbacks tracks this
-    return this.listeners.size > 0;
-  }
-
-  /**
-   * Remove all callbacks from the list
-   */
-  empty(): void {
-    this.listeners.clear();
-  }
-
-  /**
-   * Disable the callback list from doing anything more
-   */
-  disable(): void {
-    this.listeners.clear();
-  }
-
-  /**
-   * Check if the callbacks list is disabled
-   */
-  disabled(): boolean {
-    return this.listeners.size === 0;
-  }
-
-  /**
-   * Lock the callback list in its current state
-   */
-  lock(): void {
-    // Simplified implementation
-  }
-
-  /**
-   * Check if the callbacks list is locked
-   */
-  locked(): boolean {
-    return false;
-  }
-
-  /**
-   * Determine if the callbacks list has any listeners
-   */
-  has(callback?: EventListener): boolean {
-    if (callback) {
-      return this.listeners.has(callback);
-    }
-    return this.listeners.size > 0;
   }
 }
