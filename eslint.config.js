@@ -16,6 +16,9 @@ export default [
       '@typescript-eslint': tseslint,
     },
     rules: {
+      // Include recommended rules
+      ...tseslint.configs.recommended.rules,
+      // Custom overrides
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': 'warn',
       '@typescript-eslint/no-unused-vars': 'error',
