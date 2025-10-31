@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import $ from 'jquery';
 import { Utils } from '../core/utils';
 import { Model } from '../model/model';
 import { Main } from './main';
@@ -13,7 +12,7 @@ export class Controller {
   private three: Main;
   private model: Model;
   private scene: THREE.Scene;
-  private element: JQuery;
+  private element: HTMLElement;
   private camera: THREE.PerspectiveCamera;
   private controls: Controls;
   private hud: HUD;
@@ -44,7 +43,7 @@ export class Controller {
     three: Main,
     model: Model,
     camera: THREE.PerspectiveCamera,
-    element: JQuery,
+    element: HTMLElement,
     controls: Controls,
     hud: HUD
   ) {
@@ -62,9 +61,9 @@ export class Controller {
   }
 
   private init() {
-    this.element.mousedown(this.mouseDownEvent.bind(this));
-    this.element.mouseup(this.mouseUpEvent.bind(this));
-    this.element.mousemove(this.mouseMoveEvent.bind(this));
+    this.element.addEventListener('mousedown', this.mouseDownEvent.bind(this));
+    this.element.addEventListener('mouseup', this.mouseUpEvent.bind(this));
+    this.element.addEventListener('mousemove', this.mouseMoveEvent.bind(this));
 
     this.model.scene.itemRemovedCallbacks.add(this.itemRemoved.bind(this));
     this.model.scene.itemLoadedCallbacks.add(this.itemLoaded.bind(this));

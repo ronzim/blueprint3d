@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import $ from 'jquery';
 import { Utils } from '../core/utils';
 import { HalfEdge } from '../model/half_edge';
 import { Scene } from '../model/scene';
