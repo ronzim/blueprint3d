@@ -19,10 +19,29 @@ This test uses Puppeteer to:
 npm test
 ```
 
+### Browser Requirements
+
+The test automatically detects Chrome/Chromium installations in common locations:
+- Linux: `/usr/bin/chromium-browser`, `/usr/bin/chromium`, `/usr/bin/google-chrome`, etc.
+- macOS: `/Applications/Google Chrome.app`, `/Applications/Chromium.app`
+- Windows: `C:\Program Files\Google\Chrome\Application\chrome.exe`
+
+If the browser is installed in a non-standard location, set the `PUPPETEER_EXECUTABLE_PATH` environment variable:
+
+```bash
+PUPPETEER_EXECUTABLE_PATH=/path/to/chrome npm test
+```
+
+To install a browser:
+- **Linux**: `sudo apt install chromium-browser` or `sudo apt install google-chrome-stable`
+- **macOS**: Download from [google.com/chrome](https://www.google.com/chrome)
+- **Windows**: Download from [google.com/chrome](https://www.google.com/chrome)
+
 ### Expected Behavior
 
 The test will:
 - Start Vite dev server on port 8080 (or next available port)
+- Wait 5 seconds for the server to stabilize before launching browser
 - Load the application in a headless browser
 - Filter out expected errors (WebGL errors in headless mode, favicon 404)
 - Report any genuine console errors
@@ -32,4 +51,5 @@ The test will:
 
 - WebGL errors are expected in headless mode and are filtered out
 - Missing favicon.ico is a harmless browser request and is ignored
-- The test requires Chromium browser to be installed at `/usr/bin/chromium-browser`
+- A 5-second delay after server startup ensures proper initialization before testing
+

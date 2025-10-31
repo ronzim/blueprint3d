@@ -4,11 +4,74 @@
  */
 
 const puppeteer = require('puppeteer-core');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
+const fs = require('fs');
 
 // Configuration
 const DEV_SERVER_STARTUP_TIMEOUT = 30000; // 30 seconds
+const DEV_SERVER_STABILIZATION_DELAY = 5000; // 5 seconds - wait after server reports ready
 const PAGE_LOAD_TIMEOUT = 15000; // 15 seconds
+
+/**
+ * Find the Chrome/Chromium executable path
+ * @returns {string|null} Path to browser executable or null if not found
+ */
+function findChromiumExecutable() {
+  // Common paths for different systems
+  const possiblePaths = [
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/snap/bin/chromium',
+    'chromium-browser',
+    'chromium',
+    'google-chrome',
+    'google-chrome-stable',
+  ];
+
+  // Try to find executable on macOS
+  if (process.platform === 'darwin') {
+    possiblePaths.push(
+      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      '/Applications/Chromium.app/Contents/MacOS/Chromium'
+    );
+  }
+
+  // Try to find executable on Windows
+  if (process.platform === 'win32') {
+    const programFiles = process.env['ProgramFiles'] || 'C:\\Program Files';
+    const programFilesX86 = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)';
+    possiblePaths.push(
+      `${programFiles}\\Google\\Chrome\\Application\\chrome.exe`,
+      `${programFilesX86}\\Google\\Chrome\\Application\\chrome.exe`
+    );
+  }
+
+  // Check each path
+  for (const path of possiblePaths) {
+    try {
+      // Try with fs.existsSync for absolute paths
+      if (fs.existsSync(path)) {
+        console.log(`Found browser at: ${path}`);
+        return path;
+      }
+      // Try with which command for commands in PATH
+      const result = execSync(`which ${path} 2>/dev/null || command -v ${path} 2>/dev/null`, { 
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'ignore']
+      }).trim();
+      if (result) {
+        console.log(`Found browser at: ${result}`);
+        return result;
+      }
+    } catch (error) {
+      // Continue to next path
+    }
+  }
+
+  return null;
+}
 
 /**
  * Start the dev server using npm run dev
@@ -48,11 +111,11 @@ async function startDevServer() {
       if (output.includes('ready in') && !serverReady) {
         serverReady = true;
         clearTimeout(timeout);
-        // Give it a bit more time to fully stabilize
+        // Give it more time to fully stabilize before launching browser
         setTimeout(() => {
           console.log(`Server detected at URL: ${serverUrl}`);
           resolve({ process: devServer, url: serverUrl });
-        }, 2000);
+        }, DEV_SERVER_STABILIZATION_DELAY);
       }
     });
 
@@ -94,9 +157,22 @@ async function runTests() {
     devServer = devServerProcess;
     console.log(`Dev server started successfully at ${serverUrl}`);
 
+    console.log('Finding browser executable...');
+    const browserPath = findChromiumExecutable();
+    
+    if (!browserPath) {
+      throw new Error(
+        'Could not find Chrome/Chromium browser. Please install one of the following:\n' +
+        '  - chromium-browser (Linux: apt install chromium-browser)\n' +
+        '  - google-chrome (Linux: apt install google-chrome-stable)\n' +
+        '  - Google Chrome (macOS/Windows: download from google.com/chrome)\n' +
+        'Or set PUPPETEER_EXECUTABLE_PATH environment variable to your browser location.'
+      );
+    }
+
     console.log('Launching browser...');
     browser = await puppeteer.launch({
-      executablePath: '/usr/bin/chromium-browser',
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || browserPath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
